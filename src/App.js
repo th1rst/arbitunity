@@ -2,11 +2,18 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
+//temporary import of CMC top500 to not hit API call limit      +++++++++++++++++++++++++++++++++++
+import { topCryptosImport } from "./topCryptoTickers";
+
 const App = () => {
   const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
 
   const [topX, setTopX] = useState(500);
-  const [topCryptoTickers, setTopCryptoTickers] = useState([]);
+
+  //temp disabled to not make too many API calls            +++++++++++++++++++++++++++++++++++
+  // const [topCryptoTickers, setTopCryptoTickers] = useState(topCryptosImport);       +++++++++++++++++++++++++++++++++++
+
+  const topCryptoTickers = topCryptosImport;
   const [exchanges, setExchanges] = useState([
     { name: "Binance", enabled: true },
     { name: "Coinbase", enabled: true },
@@ -15,10 +22,12 @@ const App = () => {
     { name: "KuCoin", enabled: false },
     { name: "Poloniex", enabled: false },
   ]);
+  const [binancePairs, setBinancePairs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCMCdata().then(() => getExchangeData());
+    //getCMCdata();                 +++++++++++++++++++++++++++++++++++
+    getExchangeData();
   }, []);
 
   //get the Top X (default: 500) cryptos from CoinMarketCap
@@ -48,8 +57,9 @@ const App = () => {
     input.data.map((coin) => coinSymbols.push(coin.symbol));
 
     //set array of symbols/tickers in state
-    setTopCryptoTickers(coinSymbols);
-    setLoading(false);
+
+    //temp disabled to not make too many API calls +++++++++++++++++++++++++++++++++++
+    //setTopCryptoTickers(coinSymbols);             +++++++++++++++++++++++++++++++++++
   };
 
   const getExchangeData = () => {
@@ -72,6 +82,7 @@ const App = () => {
     // since I only want BTC trading pairs, check if
     // last 3 characters of symbol match (i.e. "ETHBTC")
     const binanceBTCTradingPairs = [];
+    const relevantBinancePairs = [];
 
     input.forEach((coin) => {
       if (coin.symbol.substring(coin.symbol.length - 3) === "BTC") {
@@ -79,20 +90,21 @@ const App = () => {
       }
     });
 
-    console.log(binanceBTCTradingPairs);
-
     //then cross-check with the topX (or default: top500) coins from CMC
-    binanceBTCTradingPairs.map((coin) => {
+    binanceBTCTradingPairs.forEach((coin) => {
       //remove the "BTC" again from the Trading pair name to get the coin name
       const cointicker = coin.name.substring(0, coin.name.length - 3);
 
       //check if it's in the topX (default: top500)
-      topCryptoTickers.map((topCrypto) => {
+      topCryptoTickers.forEach((topCrypto) => {
         if (cointicker === topCrypto) {
-          console.log("Found top500 coin on Binance: " + topCrypto)
+          //if it's in topX, push to array
+          relevantBinancePairs.push({ name: topCrypto, price: coin.price });
         }
-      })
+      });
     });
+    setBinancePairs(relevantBinancePairs);
+    setLoading(false);
   };
 
   const getCoinbaseData = () => {
@@ -106,14 +118,33 @@ const App = () => {
   return (
     <>
       <div className="flex flex-col items-center">
-        <h1 className="my-4">HELLO THERE!</h1>
+        <h1 className="my-4 text-2xl font-semibold uppercas">Arbitunity</h1>
         <div className="w-full flex flex-row justify-center">
           {loading ? <h1>LOADING!</h1> : <h1>API HAS RESPONDED!</h1>}
         </div>
+        {loading ? (
+          <h1>LOADING!</h1>
+        ) : (
+          <div className="flex flex-row space-around">
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>{binancePairs.length} relevant Binance Pairs:</h1>
+              </div>
+              <div className="flex flex-col items-center">
+                {binancePairs.map((crypto) => (
+                  <h3>{crypto.name}</h3>
+                ))}
+              </div>
+            </div>
 
-        {topCryptoTickers.map((crypto) => (
-          <h3>{crypto}</h3>
-        ))}
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>XXX relevant Bittrex Pairs:</h1>
+              </div>
+              {/* BITTREX PAIRS */}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
