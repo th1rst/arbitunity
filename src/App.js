@@ -5,6 +5,13 @@ import "./App.css";
 //temporary import of CMC top500 to not hit API call limit      +++++++++++++++++++++++++++++++++++
 import { topCryptosImport } from "./topCryptoTickers";
 
+// formatting functions
+import { formatPoloniexData } from "./formatData/FormatPoloniexData";
+import { formatBinanceData } from "./formatData/FormatBinanceData";
+import { formatBittrexData } from "./formatData/FormatBittrexData";
+import { formatBitfinexData } from "./formatData/FormatBitfinexData";
+import { formatKucoinData } from "./formatData/FormatKucoinData";
+
 const App = () => {
   const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
 
@@ -76,72 +83,20 @@ const App = () => {
     try {
       //gets EVERY trading pair and its price from Binance
       let res = await axios.get("https://www.binance.com/api/v3/ticker/price");
-      formatBinanceData(res.data);
+      setBinancePairs(formatBinanceData(res.data, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const formatBinanceData = (input) => {
-    const relevantBinanceCoins = [];
-
-    input.forEach((coin) => {
-      const name = coin.symbol.substring(0, coin.symbol.length - 3);
-      const price = coin.price;
-      const lastThreeChars = coin.symbol.substring(coin.symbol.length - 3);
-
-      // check if it's a BTC trading pair (i.e. "ETH-BTC")
-      if (lastThreeChars === "BTC") {
-        //check if it's in the topX (default: top500)
-        topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
-            //if it's in topX, push to array
-            relevantBinanceCoins.push({ name: name, price: price });
-          }
-        });
-      }
-    });
-
-    setBinancePairs(relevantBinanceCoins);
-    setLoading(false);
   };
 
   const getBittrexData = async () => {
     try {
       //gets EVERY trading pair and its price from Bittrex
       let res = await axios.get("https://api.bittrex.com/v3/markets/tickers");
-      formatBittrexData(res.data);
+      setBittrexPairs(formatBittrexData(res.data, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const formatBittrexData = (input) => {
-    const relevantBittrexCoins = [];
-
-    input.forEach((coin) => {
-      // Bittrex seperates trading pairs by dash, so remove it
-      // then remove "BTC" from it to get the actual coin name
-      const name = coin.symbol
-        .split("-")
-        .join("")
-        .substring(0, coin.symbol.length - 4);
-      const price = coin.lastTradeRate;
-      const lastThreeChars = coin.symbol.substring(coin.symbol.length - 3);
-
-      // check if it's a BTC trading pair (i.e. "ETH-BTC")
-      if (lastThreeChars === "BTC") {
-        //check if it's in the topX (default: top500)
-        topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
-            //if it's in topX, push to array
-            relevantBittrexCoins.push({ name: name, price: price });
-          }
-        });
-      }
-    });
-    setBittrexPairs(relevantBittrexCoins);
-    setLoading(false);
   };
 
   const getBitfinexData = async () => {
@@ -150,44 +105,10 @@ const App = () => {
       let res = await axios.get(
         "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL"
       );
-      formatBitfinexData(res.data);
+      setBitfinexPairs(formatBitfinexData(res.data, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
-  };
-
-  // Bitfinex API is very "special", so a lot of filtering has to be done
-  const formatBitfinexData = (input) => {
-    const relevantBitfinexCoins = [];
-
-    input.forEach((coin) => {
-      // Bitfinex API puts a "t" in front of every trading pair,
-      // so remove it from first position and "BTC" from the end
-      const name = coin[0].substring(1, coin[0].length - 3);
-      const price = coin[1];
-      const lastThreeChars = coin[0].substring(coin[0].length - 3);
-
-      // cancel out weird, unheard of trading pairs
-      // with a ":" in between or "TEST" or
-      // pairs that are not pairs (i.e. BTCBTC or fBTC)
-      if (name.length === 4 || name.includes(":") || name.includes("TEST")) {
-        return;
-      }
-      // check if it's a BTC trading pair (i.e. "ETH-BTC")
-      else if (lastThreeChars === "BTC") {
-        //check if it's in the topX (default: top500)
-        topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
-            //if it's in topX, push to array
-            relevantBitfinexCoins.push({
-              name: name,
-              price: price,
-            });
-          }
-        });
-      }
-    });
-    setBitfinexPairs(relevantBitfinexCoins);
   };
 
   const getKucoinData = async () => {
@@ -196,38 +117,13 @@ const App = () => {
       let res = await axios.get(
         "https://api.kucoin.com/api/v1/market/allTickers"
       );
-      formatKucoinData(res.data.data.ticker);
+     setKucoinPairs(formatKucoinData(res.data.data.ticker, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
   };
 
-  const formatKucoinData = (input) => {
-    const relevantKucoinCoins = [];
-
-    input.forEach((coin) => {
-      // Kucoin seperates trading pairs by dash, so remove it
-      // then remove "BTC" from it to get the actual coin name
-      const name = coin.symbol
-        .split("-")
-        .join("")
-        .substring(0, coin.symbol.length - 4);
-      const price = coin.averagePrice;
-      const lastThreeChars = coin.symbol.substring(coin.symbol.length - 3);
-
-      // check if it's a BTC trading pair (i.e. "ETH-BTC")
-      if (lastThreeChars === "BTC") {
-        //check if it's in the topX (default: top500)
-        topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
-            //if it's in topX, push to array
-            relevantKucoinCoins.push({ name: name, price: price });
-          }
-        });
-      }
-    });
-    setKucoinPairs(relevantKucoinCoins);
-  };
+  
 
   const getPoloniexData = async () => {
     try {
@@ -235,36 +131,11 @@ const App = () => {
       let res = await axios.get(
         "https://poloniex.com/public?command=returnTicker"
       );
-      formatPoloniexData(res.data);
+      setPoloniexPairs(formatPoloniexData(res.data, topCryptosImport));
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const formatPoloniexData = (input) => {
-    const relevantPoloniexCoins = [];
-
-    Object.entries(input).forEach((coin) => {
-      // Poloniex displays trading pairs like this ("BTC_ETH")
-      const firstThreeChars = coin[0].substring(0, 3);
-
-      // check if it's a BTC trading pair
-      if (firstThreeChars === "BTC") {
-        //then remove "BTC_" from it to get the actual coin name
-        const name = coin[0].substring(4, coin[0].length);
-        const price = coin[1].last;
-
-        //check if it's in the topX (default: top500)
-        topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
-            //if it's in topX, push to array
-            relevantPoloniexCoins.push({ name: name, price: price });
-          }
-        });
-      }
-    });
-    setPoloniexPairs(relevantPoloniexCoins);
-    setLoading(false);
   };
 
   return (
