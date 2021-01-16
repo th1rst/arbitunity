@@ -16,7 +16,6 @@ const App = () => {
   const topCryptoTickers = topCryptosImport;
   const [exchanges, setExchanges] = useState([
     { name: "Binance", enabled: true },
-    { name: "Coinbase", enabled: true },
     { name: "Bittrex", enabled: true },
     { name: "Bitfinex", enabled: false },
     { name: "KuCoin", enabled: false },
@@ -24,6 +23,7 @@ const App = () => {
   ]);
   const [binancePairs, setBinancePairs] = useState([]);
   const [bittrexPairs, setBittrexPairs] = useState([]);
+  const [bitfinexPairs, setBitfinexPairs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,8 +65,8 @@ const App = () => {
 
   const getExchangeData = () => {
     getBinanceData();
-    getCoinbaseData();
     getBittrexData();
+    getBitfinexData();
   };
 
   const getBinanceData = async () => {
@@ -110,10 +110,6 @@ const App = () => {
     setLoading(false);
   };
 
-  const getCoinbaseData = () => {
-    console.log("Getting Coinbase Data");
-  };
-
   const getBittrexData = async () => {
     try {
       //gets EVERY trading pair and its price from Bittrex
@@ -125,10 +121,10 @@ const App = () => {
   };
 
   const formatBittrexData = (input) => {
-    // get BTC trading pairs
     const bittrexBTCTradingPairs = [];
     const relevantBittrexCoins = [];
 
+    // get BTC trading pairs
     input.forEach((coin) => {
       if (coin.symbol.substring(coin.symbol.length - 3) === "BTC") {
         bittrexBTCTradingPairs.push({
@@ -154,6 +150,53 @@ const App = () => {
       });
     });
     setBittrexPairs(relevantBittrexCoins);
+    setLoading(false);
+  };
+
+  const getBitfinexData = async () => {
+    try {
+      //gets EVERY trading pair and its price from Bitfinex
+      let res = await axios.get(
+        "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL"
+      );
+      console.log(res.data);
+      formatBitfinexData(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Bitfinex API is very "special", so a lot of filtering has to be done
+  const formatBitfinexData = (input) => {
+    const relevantBitfinexCoins = [];
+
+    input.forEach((coin) => {
+      const name = coin[0];
+      const price = coin[1];
+
+      // cancel out weird, unheard of trading pairs
+      // with a ":" in between or "TEST" or
+      // pairs that are not pairs (i.e. BTCBTC)
+      if (name.length === 4 || name.includes(":") || name.includes("TEST")) {
+        return;
+      }
+      // check if it's a BTC trading pair
+      else if (name.substring(coin[0].length - 3) === "BTC") {
+        // then cross-check with top500 coins
+        // also, Bitfinex API puts a "t" in front of every trading pair (becaue of "ticker"),
+        // so remove it from first position and "BTC" from the end
+        topCryptoTickers.forEach((topCrypto) => {
+          if (name.substring(1, name.length - 3) === topCrypto) {
+            //if it's in topX, push to array
+            relevantBitfinexCoins.push({
+              name: name.substring(1, name.length - 3),
+              price: price,
+            });
+          }
+        });
+      }
+    });
+    setBitfinexPairs(relevantBitfinexCoins);
     setLoading(false);
   };
 
@@ -185,6 +228,17 @@ const App = () => {
               </div>
               <div className="flex flex-col items-center">
                 {bittrexPairs.map((crypto) => (
+                  <h3>{crypto.name}</h3>
+                ))}
+              </div>
+            </div>
+
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>{bitfinexPairs.length} relevant Bitfinex Pairs:</h1>
+              </div>
+              <div className="flex flex-col items-center">
+                {bitfinexPairs.map((crypto) => (
                   <h3>{crypto.name}</h3>
                 ))}
               </div>
