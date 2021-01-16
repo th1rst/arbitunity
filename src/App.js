@@ -24,6 +24,7 @@ const App = () => {
   const [bittrexPairs, setBittrexPairs] = useState([]);
   const [bitfinexPairs, setBitfinexPairs] = useState([]);
   const [kucoinPairs, setKucoinPairs] = useState([]);
+  const [poloniexPairs, setPoloniexPairs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -68,6 +69,7 @@ const App = () => {
     getBittrexData();
     getBitfinexData();
     getKucoinData();
+    getPoloniexData();
   };
 
   const getBinanceData = async () => {
@@ -211,9 +213,10 @@ const App = () => {
         .join("")
         .substring(0, coin.symbol.length - 4);
       const price = coin.averagePrice;
+      const lastThreeChars = coin.symbol.substring(coin.symbol.length - 3);
 
       // check if it's a BTC trading pair (i.e. "ETH-BTC")
-      if (coin.symbol.substring(coin.symbol.length - 3) === "BTC") {
+      if (lastThreeChars === "BTC") {
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
           if (name === topCrypto) {
@@ -223,8 +226,44 @@ const App = () => {
         });
       }
     });
-
     setKucoinPairs(relevantKucoinCoins);
+  };
+
+  const getPoloniexData = async () => {
+    try {
+      //gets EVERY trading pair and its price from KuCoin
+      let res = await axios.get(
+        "https://poloniex.com/public?command=returnTicker"
+      );
+      formatPoloniexData(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const formatPoloniexData = (input) => {
+    const relevantPoloniexCoins = [];
+
+    Object.entries(input).forEach((coin) => {
+      // Poloniex displays trading pairs like this ("BTC_ETH")
+      const firstThreeChars = coin[0].substring(0, 3);
+
+      // check if it's a BTC trading pair
+      if (firstThreeChars === "BTC") {
+        //then remove "BTC_" from it to get the actual coin name
+        const name = coin[0].substring(4, coin[0].length);
+        const price = coin[1].last;
+
+        //check if it's in the topX (default: top500)
+        topCryptoTickers.forEach((topCrypto) => {
+          if (name === topCrypto) {
+            //if it's in topX, push to array
+            relevantPoloniexCoins.push({ name: name, price: price });
+          }
+        });
+      }
+    });
+    setPoloniexPairs(relevantPoloniexCoins);
     setLoading(false);
   };
 
@@ -283,6 +322,18 @@ const App = () => {
               </div>
               <div className="flex flex-col items-center">
                 {kucoinPairs.map((crypto) => (
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
+                ))}
+              </div>
+            </div>
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>{poloniexPairs.length} relevant Poloniex Pairs:</h1>
+              </div>
+              <div className="flex flex-col items-center">
+                {poloniexPairs.map((crypto) => (
                   <h3>
                     {crypto.name}: {crypto.price}
                   </h3>
