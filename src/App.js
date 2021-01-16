@@ -18,12 +18,12 @@ const App = () => {
     { name: "Binance", enabled: true },
     { name: "Bittrex", enabled: true },
     { name: "Bitfinex", enabled: false },
-    { name: "KuCoin", enabled: false },
-    { name: "Poloniex", enabled: false },
+    { name: "Kucoin", enabled: false },
   ]);
   const [binancePairs, setBinancePairs] = useState([]);
   const [bittrexPairs, setBittrexPairs] = useState([]);
   const [bitfinexPairs, setBitfinexPairs] = useState([]);
+  const [kucoinPairs, setKucoinPairs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,6 +67,7 @@ const App = () => {
     getBinanceData();
     getBittrexData();
     getBitfinexData();
+    getKucoinData();
   };
 
   const getBinanceData = async () => {
@@ -80,32 +81,25 @@ const App = () => {
   };
 
   const formatBinanceData = (input) => {
-    // since I only want BTC trading pairs, check if
-    // last 3 characters of symbol match (i.e. "ETHBTC")
-    const binanceBTCTradingPairs = [];
     const relevantBinanceCoins = [];
 
     input.forEach((coin) => {
-      if (coin.symbol.substring(coin.symbol.length - 3) === "BTC") {
-        binanceBTCTradingPairs.push({
-          // remove the "BTC" again from the Trading pair
-          // to get the actual coin name (i.e. "ETHBTC" -> "ETH")
-          name: coin.symbol.substring(0, coin.symbol.length - 3),
-          price: coin.price,
+      const name = coin.symbol.substring(0, coin.symbol.length - 3);
+      const price = coin.price;
+      const lastThreeChars = coin.symbol.substring(coin.symbol.length - 3);
+
+      // check if it's a BTC trading pair (i.e. "ETH-BTC")
+      if (lastThreeChars === "BTC") {
+        //check if it's in the topX (default: top500)
+        topCryptoTickers.forEach((topCrypto) => {
+          if (name === topCrypto) {
+            //if it's in topX, push to array
+            relevantBinanceCoins.push({ name: name, price: price });
+          }
         });
       }
     });
 
-    // cross-check with the topX (or default: top500) coins from CMC
-    binanceBTCTradingPairs.forEach((coin) => {
-      //check if it's in the topX (default: top500)
-      topCryptoTickers.forEach((topCrypto) => {
-        if (coin.name === topCrypto) {
-          //if it's in topX, push to array
-          relevantBinanceCoins.push({ name: topCrypto, price: coin.price });
-        }
-      });
-    });
     setBinancePairs(relevantBinanceCoins);
     setLoading(false);
   };
@@ -121,33 +115,28 @@ const App = () => {
   };
 
   const formatBittrexData = (input) => {
-    const bittrexBTCTradingPairs = [];
     const relevantBittrexCoins = [];
 
-    // get BTC trading pairs
     input.forEach((coin) => {
-      if (coin.symbol.substring(coin.symbol.length - 3) === "BTC") {
-        bittrexBTCTradingPairs.push({
-          // Bittrex seperates trading pairs by dash, so remove it
-          // then remove "BTC" from it to get the actual coin name
-          name: coin.symbol
-            .split("-")
-            .join("")
-            .substring(0, coin.symbol.length - 4),
-          price: coin.lastTradeRate,
+      // Bittrex seperates trading pairs by dash, so remove it
+      // then remove "BTC" from it to get the actual coin name
+      const name = coin.symbol
+        .split("-")
+        .join("")
+        .substring(0, coin.symbol.length - 4);
+      const price = coin.lastTradeRate;
+      const lastThreeChars = coin.symbol.substring(coin.symbol.length - 3);
+
+      // check if it's a BTC trading pair (i.e. "ETH-BTC")
+      if (lastThreeChars === "BTC") {
+        //check if it's in the topX (default: top500)
+        topCryptoTickers.forEach((topCrypto) => {
+          if (name === topCrypto) {
+            //if it's in topX, push to array
+            relevantBittrexCoins.push({ name: name, price: price });
+          }
         });
       }
-    });
-
-    // cross-check with the topX (or default: top500) coins from CMC
-    bittrexBTCTradingPairs.forEach((coin) => {
-      //check if it's in the topX (default: top500)
-      topCryptoTickers.forEach((topCrypto) => {
-        if (coin.name === topCrypto) {
-          //if it's in topX, push to array
-          relevantBittrexCoins.push({ name: topCrypto, price: coin.price });
-        }
-      });
     });
     setBittrexPairs(relevantBittrexCoins);
     setLoading(false);
@@ -159,7 +148,6 @@ const App = () => {
       let res = await axios.get(
         "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL"
       );
-      console.log(res.data);
       formatBitfinexData(res.data);
     } catch (error) {
       console.log(error);
@@ -171,25 +159,26 @@ const App = () => {
     const relevantBitfinexCoins = [];
 
     input.forEach((coin) => {
-      const name = coin[0];
+      // Bitfinex API puts a "t" in front of every trading pair,
+      // so remove it from first position and "BTC" from the end
+      const name = coin[0].substring(1, coin[0].length - 3);
       const price = coin[1];
+      const lastThreeChars = coin[0].substring(coin[0].length - 3);
 
       // cancel out weird, unheard of trading pairs
       // with a ":" in between or "TEST" or
-      // pairs that are not pairs (i.e. BTCBTC)
+      // pairs that are not pairs (i.e. BTCBTC or fBTC)
       if (name.length === 4 || name.includes(":") || name.includes("TEST")) {
         return;
       }
-      // check if it's a BTC trading pair
-      else if (name.substring(coin[0].length - 3) === "BTC") {
-        // then cross-check with top500 coins
-        // also, Bitfinex API puts a "t" in front of every trading pair (becaue of "ticker"),
-        // so remove it from first position and "BTC" from the end
+      // check if it's a BTC trading pair (i.e. "ETH-BTC")
+      else if (lastThreeChars === "BTC") {
+        //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name.substring(1, name.length - 3) === topCrypto) {
+          if (name === topCrypto) {
             //if it's in topX, push to array
             relevantBitfinexCoins.push({
-              name: name.substring(1, name.length - 3),
+              name: name,
               price: price,
             });
           }
@@ -197,6 +186,45 @@ const App = () => {
       }
     });
     setBitfinexPairs(relevantBitfinexCoins);
+  };
+
+  const getKucoinData = async () => {
+    try {
+      //gets EVERY trading pair and its price from KuCoin
+      let res = await axios.get(
+        "https://api.kucoin.com/api/v1/market/allTickers"
+      );
+      formatKucoinData(res.data.data.ticker);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const formatKucoinData = (input) => {
+    const relevantKucoinCoins = [];
+
+    input.forEach((coin) => {
+      // Kucoin seperates trading pairs by dash, so remove it
+      // then remove "BTC" from it to get the actual coin name
+      const name = coin.symbol
+        .split("-")
+        .join("")
+        .substring(0, coin.symbol.length - 4);
+      const price = coin.averagePrice;
+
+      // check if it's a BTC trading pair (i.e. "ETH-BTC")
+      if (coin.symbol.substring(coin.symbol.length - 3) === "BTC") {
+        //check if it's in the topX (default: top500)
+        topCryptoTickers.forEach((topCrypto) => {
+          if (name === topCrypto) {
+            //if it's in topX, push to array
+            relevantKucoinCoins.push({ name: name, price: price });
+          }
+        });
+      }
+    });
+
+    setKucoinPairs(relevantKucoinCoins);
     setLoading(false);
   };
 
@@ -217,7 +245,9 @@ const App = () => {
               </div>
               <div className="flex flex-col items-center">
                 {binancePairs.map((crypto) => (
-                  <h3>{crypto.name}</h3>
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
                 ))}
               </div>
             </div>
@@ -228,7 +258,9 @@ const App = () => {
               </div>
               <div className="flex flex-col items-center">
                 {bittrexPairs.map((crypto) => (
-                  <h3>{crypto.name}</h3>
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
                 ))}
               </div>
             </div>
@@ -239,7 +271,21 @@ const App = () => {
               </div>
               <div className="flex flex-col items-center">
                 {bitfinexPairs.map((crypto) => (
-                  <h3>{crypto.name}</h3>
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
+                ))}
+              </div>
+            </div>
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>{kucoinPairs.length} relevant Kucoin Pairs:</h1>
+              </div>
+              <div className="flex flex-col items-center">
+                {kucoinPairs.map((crypto) => (
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
                 ))}
               </div>
             </div>
