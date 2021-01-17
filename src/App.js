@@ -11,6 +11,7 @@ import { formatBinanceData } from "./formatData/FormatBinanceData";
 import { formatBittrexData } from "./formatData/FormatBittrexData";
 import { formatBitfinexData } from "./formatData/FormatBitfinexData";
 import { formatKucoinData } from "./formatData/FormatKucoinData";
+import { formatHuobiData } from "./formatData/FormatHuobiData";
 
 const App = () => {
   const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
@@ -32,6 +33,7 @@ const App = () => {
   const [bitfinexPairs, setBitfinexPairs] = useState([]);
   const [kucoinPairs, setKucoinPairs] = useState([]);
   const [poloniexPairs, setPoloniexPairs] = useState([]);
+  const [huobiPairs, setHuobiPairs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,6 +79,7 @@ const App = () => {
     getBitfinexData();
     getKucoinData();
     getPoloniexData();
+    getHuobiData();
   };
 
   const getBinanceData = async () => {
@@ -117,22 +120,30 @@ const App = () => {
       let res = await axios.get(
         "https://api.kucoin.com/api/v1/market/allTickers"
       );
-     setKucoinPairs(formatKucoinData(res.data.data.ticker, topCryptosImport));
+      setKucoinPairs(formatKucoinData(res.data.data.ticker, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
   };
 
-  
-
   const getPoloniexData = async () => {
     try {
-      //gets EVERY trading pair and its price from KuCoin
+      //gets EVERY trading pair and its price from Poloniex
       let res = await axios.get(
         "https://poloniex.com/public?command=returnTicker"
       );
       setPoloniexPairs(formatPoloniexData(res.data, topCryptosImport));
       setLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getHuobiData = async () => {
+    try {
+      //gets EVERY trading pair and its price from Huobi
+      let res = await axios.get("https://api.huobi.pro/market/tickers");
+      setHuobiPairs(formatHuobiData(res.data.data, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
@@ -205,6 +216,18 @@ const App = () => {
               </div>
               <div className="flex flex-col items-center">
                 {poloniexPairs.map((crypto) => (
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
+                ))}
+              </div>
+            </div>
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>{huobiPairs.length} relevant Huobi Pairs:</h1>
+              </div>
+              <div className="flex flex-col items-center">
+                {huobiPairs.map((crypto) => (
                   <h3>
                     {crypto.name}: {crypto.price}
                   </h3>
