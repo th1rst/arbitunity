@@ -11,7 +11,7 @@ export const formatHuobiData = (APIdata, topCryptoTickers) => {
 
       // for the time being, calculate the median price between bid and ask.
       // will get replaced by a more accurate one in the future
-      const medianPrice = (coin.bid + coin.ask) / 2;
+      const medianPrice = ((coin.bid + coin.ask) / 2).toFixed(8);
       //check if it's in the topX (default: top500)
       topCryptoTickers.forEach((topCrypto) => {
         if (name === topCrypto) {

@@ -13,6 +13,8 @@ import { formatBitfinexData } from "./formatData/FormatBitfinexData";
 import { formatKucoinData } from "./formatData/FormatKucoinData";
 import { formatHuobiData } from "./formatData/FormatHuobiData";
 import { formatGateIOdata } from "./formatData/FormatGateIOdata";
+import { formatOkexdata } from "./formatData/FormatOkexData";
+import { formatCoinexData } from "./formatData/FormatCoinexData";
 
 const App = () => {
   const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
@@ -36,6 +38,8 @@ const App = () => {
   const [poloniexPairs, setPoloniexPairs] = useState([]);
   const [huobiPairs, setHuobiPairs] = useState([]);
   const [gateIOpairs, setGateIOpairs] = useState([]);
+  const [okexPairs, setOkexPairs] = useState([]);
+  const [coinexPairs, setCoinexPairs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -83,6 +87,8 @@ const App = () => {
     getPoloniexData();
     getHuobiData();
     getGateIOdata();
+    getOkexData();
+    getCoinexData();
   };
 
   const getBinanceData = async () => {
@@ -157,6 +163,28 @@ const App = () => {
       //gets EVERY trading pair and its price from Huobi
       let res = await axios.get("https://api.gateio.ws/api/v4/spot/tickers");
       setGateIOpairs(formatGateIOdata(res.data, topCryptosImport));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getOkexData = async () => {
+    try {
+      //gets EVERY trading pair and its price from OKex
+      let res = await axios.get(
+        "https://www.okex.com/api/spot/v3/instruments/ticker"
+      );
+      setOkexPairs(formatOkexdata(res.data, topCryptosImport));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getCoinexData = async () => {
+    try {
+      //gets EVERY trading pair and its price from CoinEx
+      let res = await axios.get("https://api.coinex.com/v1/market/ticker/all");
+      setCoinexPairs(formatCoinexData(res.data.data.ticker, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
@@ -253,6 +281,30 @@ const App = () => {
               </div>
               <div className="flex flex-col items-center">
                 {gateIOpairs.map((crypto) => (
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
+                ))}
+              </div>
+            </div>
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>{okexPairs.length} relevant OKex Pairs:</h1>
+              </div>
+              <div className="flex flex-col items-center">
+                {okexPairs.map((crypto) => (
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
+                ))}
+              </div>
+            </div>
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>{coinexPairs.length} relevant Coinex Pairs:</h1>
+              </div>
+              <div className="flex flex-col items-center">
+                {coinexPairs.map((crypto) => (
                   <h3>
                     {crypto.name}: {crypto.price}
                   </h3>
