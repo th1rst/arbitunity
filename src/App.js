@@ -12,6 +12,7 @@ import { formatBittrexData } from "./formatData/FormatBittrexData";
 import { formatBitfinexData } from "./formatData/FormatBitfinexData";
 import { formatKucoinData } from "./formatData/FormatKucoinData";
 import { formatHuobiData } from "./formatData/FormatHuobiData";
+import { formatGateIOdata } from "./formatData/FormatGateIOdata";
 
 const App = () => {
   const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
@@ -34,6 +35,7 @@ const App = () => {
   const [kucoinPairs, setKucoinPairs] = useState([]);
   const [poloniexPairs, setPoloniexPairs] = useState([]);
   const [huobiPairs, setHuobiPairs] = useState([]);
+  const [gateIOpairs, setGateIOpairs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -80,6 +82,7 @@ const App = () => {
     getKucoinData();
     getPoloniexData();
     getHuobiData();
+    getGateIOdata();
   };
 
   const getBinanceData = async () => {
@@ -144,6 +147,16 @@ const App = () => {
       //gets EVERY trading pair and its price from Huobi
       let res = await axios.get("https://api.huobi.pro/market/tickers");
       setHuobiPairs(formatHuobiData(res.data.data, topCryptosImport));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getGateIOdata = async () => {
+    try {
+      //gets EVERY trading pair and its price from Huobi
+      let res = await axios.get("https://api.gateio.ws/api/v4/spot/tickers");
+      setGateIOpairs(formatGateIOdata(res.data, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
@@ -228,6 +241,18 @@ const App = () => {
               </div>
               <div className="flex flex-col items-center">
                 {huobiPairs.map((crypto) => (
+                  <h3>
+                    {crypto.name}: {crypto.price}
+                  </h3>
+                ))}
+              </div>
+            </div>
+            <div className="mx-4 border-2 border-blue-500">
+              <div>
+                <h1>{gateIOpairs.length} relevant Gate.io Pairs:</h1>
+              </div>
+              <div className="flex flex-col items-center">
+                {gateIOpairs.map((crypto) => (
                   <h3>
                     {crypto.name}: {crypto.price}
                   </h3>
