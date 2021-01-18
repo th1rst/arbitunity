@@ -2,19 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
-//temporary import of CMC top500 to not hit API call limit      +++++++++++++++++++++++++++++++++++
-import { topCryptosImport } from "./topCryptoTickers";
-
-// formatting functions
-import { formatPoloniexData } from "./formatData/FormatPoloniexData";
-import { formatBinanceData } from "./formatData/FormatBinanceData";
-import { formatBittrexData } from "./formatData/FormatBittrexData";
-import { formatBitfinexData } from "./formatData/FormatBitfinexData";
-import { formatKucoinData } from "./formatData/FormatKucoinData";
-import { formatHuobiData } from "./formatData/FormatHuobiData";
-import { formatGateIOdata } from "./formatData/FormatGateIOdata";
-import { formatOkexdata } from "./formatData/FormatOkexData";
-import { formatCoinexData } from "./formatData/FormatCoinexData";
+import { getExchangeData } from "./helperFunctions/APIcalls";
 
 const App = () => {
   const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
@@ -23,8 +11,17 @@ const App = () => {
 
   //temp disabled to not make too many API calls            +++++++++++++++++++++++++++++++++++
   // const [topCryptoTickers, setTopCryptoTickers] = useState(topCryptosImport);       +++++++++++++++++++++++++++++++++++
-
-  const topCryptoTickers = topCryptosImport;
+  const exchangeList = [
+    "Binance",
+    "Bittrex",
+    "Bitfinex",
+    "Kucoin",
+    "Poloniex",
+    "Huobi",
+    "GateIO",
+    "OKex",
+    "CoinEx",
+  ];
 
   const [binancePairs, setBinancePairs] = useState([]);
   const [bittrexPairs, setBittrexPairs] = useState([]);
@@ -35,11 +32,12 @@ const App = () => {
   const [gateIOPairs, setGateIOPairs] = useState([]);
   const [okexPairs, setOkexPairs] = useState([]);
   const [coinexPairs, setCoinexPairs] = useState([]);
+  const [exchangePairs, setExchangePairs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     //getCMCdata();                 +++++++++++++++++++++++++++++++++++
-    getExchangeData();
+    getAPIData();
   }, []);
 
   //get the Top X (default: 500) cryptos from CoinMarketCap
@@ -74,19 +72,12 @@ const App = () => {
     //setTopCryptoTickers(coinSymbols);             +++++++++++++++++++++++++++++++++++
   };
 
-  const getExchangeData = async () => {
-    await Promise.all([
-      getBinanceData(),
-      getBittrexData(),
-      getBitfinexData(),
-      getKucoinData(),
-      getPoloniexData(),
-      getHuobiData(),
-      getGateIOdata(),
-      getOkexData(),
-      getCoinexData(),
-    ]).then(() => {
-      calculateArbitrageOpportunities();
+  const getAPIData = async () => {
+    exchangeList.forEach(async (exchange) => {
+      // make API call for each exchange
+      // incl. formatting and filtering (separate helperFunctions)
+      const relevantData = await getExchangeData(exchange);
+      console.log(relevantData);
     });
   };
 
@@ -217,105 +208,6 @@ const App = () => {
       }
     });
     console.log(allCoinsArray);
-  };
-
-  const getBinanceData = async () => {
-    try {
-      //gets EVERY trading pair and its price from Binance
-      let res = await axios.get("https://www.binance.com/api/v3/ticker/price");
-      setBinancePairs(formatBinanceData(res.data, topCryptosImport));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getBittrexData = async () => {
-    try {
-      //gets EVERY trading pair and its price from Bittrex
-      let res = await axios.get("https://api.bittrex.com/v3/markets/tickers");
-      setBittrexPairs(formatBittrexData(res.data, topCryptosImport));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getBitfinexData = async () => {
-    try {
-      //gets EVERY trading pair and its price from Bitfinex
-      let res = await axios.get(
-        "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL"
-      );
-      setBitfinexPairs(formatBitfinexData(res.data, topCryptosImport));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getKucoinData = async () => {
-    try {
-      //gets EVERY trading pair and its price from KuCoin
-      let res = await axios.get(
-        "https://api.kucoin.com/api/v1/market/allTickers"
-      );
-      setKucoinPairs(formatKucoinData(res.data.data.ticker, topCryptosImport));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getPoloniexData = async () => {
-    try {
-      //gets EVERY trading pair and its price from Poloniex
-      let res = await axios.get(
-        "https://poloniex.com/public?command=returnTicker"
-      );
-      setPoloniexPairs(formatPoloniexData(res.data, topCryptosImport));
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getHuobiData = async () => {
-    try {
-      //gets EVERY trading pair and its price from Huobi
-      let res = await axios.get("https://api.huobi.pro/market/tickers");
-      setHuobiPairs(formatHuobiData(res.data.data, topCryptosImport));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getGateIOdata = async () => {
-    try {
-      //gets EVERY trading pair and its price from Huobi
-      let res = await axios.get("https://api.gateio.ws/api/v4/spot/tickers");
-      setGateIOPairs(formatGateIOdata(res.data, topCryptosImport));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getOkexData = async () => {
-    try {
-      //gets EVERY trading pair and its price from OKex
-      let res = await axios.get(
-        "https://www.okex.com/api/spot/v3/instruments/ticker"
-      );
-      setOkexPairs(formatOkexdata(res.data, topCryptosImport));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getCoinexData = async () => {
-    try {
-      //gets EVERY trading pair and its price from CoinEx
-      let res = await axios.get("https://api.coinex.com/v1/market/ticker/all");
-      setCoinexPairs(formatCoinexData(res.data.data.ticker, topCryptosImport));
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   return (
