@@ -25,19 +25,14 @@ const App = () => {
   // const [topCryptoTickers, setTopCryptoTickers] = useState(topCryptosImport);       +++++++++++++++++++++++++++++++++++
 
   const topCryptoTickers = topCryptosImport;
-  const [exchanges, setExchanges] = useState([
-    { name: "Binance", enabled: true },
-    { name: "Bittrex", enabled: true },
-    { name: "Bitfinex", enabled: false },
-    { name: "Kucoin", enabled: false },
-  ]);
+
   const [binancePairs, setBinancePairs] = useState([]);
   const [bittrexPairs, setBittrexPairs] = useState([]);
   const [bitfinexPairs, setBitfinexPairs] = useState([]);
   const [kucoinPairs, setKucoinPairs] = useState([]);
   const [poloniexPairs, setPoloniexPairs] = useState([]);
   const [huobiPairs, setHuobiPairs] = useState([]);
-  const [gateIOpairs, setGateIOpairs] = useState([]);
+  const [gateIOPairs, setGateIOPairs] = useState([]);
   const [okexPairs, setOkexPairs] = useState([]);
   const [coinexPairs, setCoinexPairs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,16 +74,149 @@ const App = () => {
     //setTopCryptoTickers(coinSymbols);             +++++++++++++++++++++++++++++++++++
   };
 
-  const getExchangeData = () => {
-    getBinanceData();
-    getBittrexData();
-    getBitfinexData();
-    getKucoinData();
-    getPoloniexData();
-    getHuobiData();
-    getGateIOdata();
-    getOkexData();
-    getCoinexData();
+  const getExchangeData = async () => {
+    await Promise.all([
+      getBinanceData(),
+      getBittrexData(),
+      getBitfinexData(),
+      getKucoinData(),
+      getPoloniexData(),
+      getHuobiData(),
+      getGateIOdata(),
+      getOkexData(),
+      getCoinexData(),
+    ]).then(() => {
+      calculateArbitrageOpportunities();
+    });
+  };
+
+  const calculateArbitrageOpportunities = () => {
+    const allCoinsArray = [];
+
+    binancePairs.forEach((coin) => {
+      // map over already processed coins (allCoinsArray)
+      // check if entry of said coin already exists
+      const found = allCoinsArray.some((item) => item.name === coin.name);
+
+      // if not found, push a new object (inluding coin name) to array
+      if (!found) {
+        allCoinsArray.push({
+          name: coin.name,
+          prices: [
+            {
+              exchange: "Binance",
+              price: coin.price,
+            },
+          ],
+        });
+      }
+      // if found, update only the price (add to price list)
+      // at the given index
+      else {
+        const index = allCoinsArray
+          .map((element) => element.name)
+          .indexOf(coin.name);
+
+        allCoinsArray[index].prices.push({
+          exchange: "Binance",
+          price: coin.price,
+        });
+      }
+    });
+
+    bittrexPairs.forEach((coin) => {
+      // map over already processed coins
+      // check if entry of said coin already exists
+      const found = allCoinsArray.some((item) => item.name === coin.name);
+
+      // if not found, push a new object (inluding coin name) to array
+      if (!found) {
+        allCoinsArray.push({
+          name: coin.name,
+          prices: [
+            {
+              exchange: "Bittrex",
+              price: coin.price,
+            },
+          ],
+        });
+      }
+      // if found, update only the price (add to price list)
+      // at the given index
+      else {
+        const index = allCoinsArray
+          .map((element) => element.name)
+          .indexOf(coin.name);
+
+        allCoinsArray[index].prices.push({
+          exchange: "Bittrex",
+          price: coin.price,
+        });
+      }
+    });
+
+    bitfinexPairs.forEach((coin) => {
+      // map over already processed coins
+      // check if entry of said coin already exists
+      const found = allCoinsArray.some((item) => item.name === coin.name);
+
+      // if not found, push a new object (inluding coin name) to array
+      if (!found) {
+        allCoinsArray.push({
+          name: coin.name,
+          prices: [
+            {
+              exchange: "Bitfinex",
+              price: coin.price,
+            },
+          ],
+        });
+      }
+      // if found, update only the price (add to price list)
+      // at the given index
+      else {
+        const index = allCoinsArray
+          .map((element) => element.name)
+          .indexOf(coin.name);
+
+        allCoinsArray[index].prices.push({
+          exchange: "Bitfinex",
+          price: coin.price,
+        });
+      }
+    });
+
+    kucoinPairs.forEach((coin) => {
+      // map over already processed coins
+      // check if entry of said coin already exists
+      const found = allCoinsArray.some((item) => item.name === coin.name);
+
+      // if not found, push a new object (inluding coin name) to array
+      if (!found) {
+        allCoinsArray.push({
+          name: coin.name,
+          prices: [
+            {
+              exchange: "Kucoin",
+              price: coin.price,
+            },
+          ],
+        });
+      }
+      // if found, update only the price (add to price list)
+      // at the given index
+      else {
+        const index = allCoinsArray
+          .map((element) => element.name)
+          .indexOf(coin.name);
+
+        allCoinsArray[index].prices.push({
+          exchange: "Kucoin",
+          price: coin.price,
+        });
+      }
+    });
+    console.log(allCoinsArray);
   };
 
   const getBinanceData = async () => {
@@ -162,7 +290,7 @@ const App = () => {
     try {
       //gets EVERY trading pair and its price from Huobi
       let res = await axios.get("https://api.gateio.ws/api/v4/spot/tickers");
-      setGateIOpairs(formatGateIOdata(res.data, topCryptosImport));
+      setGateIOPairs(formatGateIOdata(res.data, topCryptosImport));
     } catch (error) {
       console.log(error);
     }
@@ -277,10 +405,10 @@ const App = () => {
             </div>
             <div className="mx-4 border-2 border-blue-500">
               <div>
-                <h1>{gateIOpairs.length} relevant Gate.io Pairs:</h1>
+                <h1>{gateIOPairs.length} relevant Gate.io Pairs:</h1>
               </div>
               <div className="flex flex-col items-center">
-                {gateIOpairs.map((crypto) => (
+                {gateIOPairs.map((crypto) => (
                   <h3>
                     {crypto.name}: {crypto.price}
                   </h3>
