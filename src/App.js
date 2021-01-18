@@ -4,35 +4,26 @@ import "./App.css";
 
 import { getExchangeData } from "./helperFunctions/APIcalls";
 
+const exchangeList = [
+  "Binance",
+  "Bittrex",
+  "Bitfinex",
+  "Kucoin",
+  "Poloniex",
+  "Huobi",
+  "GateIO",
+  "OKex",
+  "CoinEx",
+];
+
 const App = () => {
   const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
 
-  const [topX, setTopX] = useState(500);
-
   //temp disabled to not make too many API calls            +++++++++++++++++++++++++++++++++++
   // const [topCryptoTickers, setTopCryptoTickers] = useState(topCryptosImport);       +++++++++++++++++++++++++++++++++++
-  const exchangeList = [
-    "Binance",
-    "Bittrex",
-    "Bitfinex",
-    "Kucoin",
-    "Poloniex",
-    "Huobi",
-    "GateIO",
-    "OKex",
-    "CoinEx",
-  ];
 
-  const [binancePairs, setBinancePairs] = useState([]);
-  const [bittrexPairs, setBittrexPairs] = useState([]);
-  const [bitfinexPairs, setBitfinexPairs] = useState([]);
-  const [kucoinPairs, setKucoinPairs] = useState([]);
-  const [poloniexPairs, setPoloniexPairs] = useState([]);
-  const [huobiPairs, setHuobiPairs] = useState([]);
-  const [gateIOPairs, setGateIOPairs] = useState([]);
-  const [okexPairs, setOkexPairs] = useState([]);
-  const [coinexPairs, setCoinexPairs] = useState([]);
-  const [exchangePairs, setExchangePairs] = useState([]);
+  const [topX, setTopX] = useState(500);
+  const [rawData, setRawData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -73,142 +64,74 @@ const App = () => {
   };
 
   const getAPIData = async () => {
-    exchangeList.forEach(async (exchange) => {
+    const exchangeData = [];
+
+    exchangeList.map(async (exchange) => {
       // make API call for each exchange
       // incl. formatting and filtering (separate helperFunctions)
-      const relevantData = await getExchangeData(exchange);
-      console.log(relevantData);
+      const pairs = await getExchangeData(exchange);
+      // push everything to array
+      exchangeData.push({
+        name: exchange,
+        pairs,
+      });
     });
+    // set in state when .map is done (for optional displaying the raw data)
+    setRawData(exchangeData);
+    //
+    getUniqueCoinsAndPrices(rawData);
   };
 
-  const calculateArbitrageOpportunities = () => {
-    const allCoinsArray = [];
+  const getUniqueCoinsAndPrices = (dataset) => {
+    const uniqueCoinsAndPrices = [];
 
-    binancePairs.forEach((coin) => {
-      // map over already processed coins (allCoinsArray)
-      // check if entry of said coin already exists
-      const found = allCoinsArray.some((item) => item.name === coin.name);
+    // iterate over every exchange
+    dataset.forEach((exchange) => {
+      // then iterate over every coin
+      exchange.pairs.forEach((coin) => {
+        // map over already processed coins (uniqueCoinsAndPrices)
+        // check if entry of said coin already exists
+        const found = uniqueCoinsAndPrices.some(
+          (item) => item.name === coin.name
+        );
 
-      // if not found, push a new object (inluding coin name) to array
-      if (!found) {
-        allCoinsArray.push({
-          name: coin.name,
-          prices: [
-            {
-              exchange: "Binance",
-              price: coin.price,
-            },
-          ],
-        });
-      }
-      // if found, update only the price (add to price list)
-      // at the given index
-      else {
-        const index = allCoinsArray
-          .map((element) => element.name)
-          .indexOf(coin.name);
+        // if not found, push a new object (inluding coin name) to array
+        if (!found) {
+          uniqueCoinsAndPrices.push({
+            name: coin.name,
+            prices: [
+              {
+                exchange: `${exchange.name}`,
+                price: coin.price,
+              },
+            ],
+          });
+        }
 
-        allCoinsArray[index].prices.push({
-          exchange: "Binance",
-          price: coin.price,
-        });
-      }
+        // if found -> check at which index,
+        // update only the price (add price @ ExchangeXYZ to list)
+        else {
+          const index = uniqueCoinsAndPrices
+            .map((element) => element.name)
+            .indexOf(coin.name);
+
+          uniqueCoinsAndPrices[index].prices.push({
+            exchange: `${exchange.name}`,
+            price: coin.price,
+          });
+        }
+      });
     });
 
-    bittrexPairs.forEach((coin) => {
-      // map over already processed coins
-      // check if entry of said coin already exists
-      const found = allCoinsArray.some((item) => item.name === coin.name);
-
-      // if not found, push a new object (inluding coin name) to array
-      if (!found) {
-        allCoinsArray.push({
-          name: coin.name,
-          prices: [
-            {
-              exchange: "Bittrex",
-              price: coin.price,
-            },
-          ],
-        });
-      }
-      // if found, update only the price (add to price list)
-      // at the given index
-      else {
-        const index = allCoinsArray
-          .map((element) => element.name)
-          .indexOf(coin.name);
-
-        allCoinsArray[index].prices.push({
-          exchange: "Bittrex",
-          price: coin.price,
-        });
-      }
-    });
-
-    bitfinexPairs.forEach((coin) => {
-      // map over already processed coins
-      // check if entry of said coin already exists
-      const found = allCoinsArray.some((item) => item.name === coin.name);
-
-      // if not found, push a new object (inluding coin name) to array
-      if (!found) {
-        allCoinsArray.push({
-          name: coin.name,
-          prices: [
-            {
-              exchange: "Bitfinex",
-              price: coin.price,
-            },
-          ],
-        });
-      }
-      // if found, update only the price (add to price list)
-      // at the given index
-      else {
-        const index = allCoinsArray
-          .map((element) => element.name)
-          .indexOf(coin.name);
-
-        allCoinsArray[index].prices.push({
-          exchange: "Bitfinex",
-          price: coin.price,
-        });
-      }
-    });
-
-    kucoinPairs.forEach((coin) => {
-      // map over already processed coins
-      // check if entry of said coin already exists
-      const found = allCoinsArray.some((item) => item.name === coin.name);
-
-      // if not found, push a new object (inluding coin name) to array
-      if (!found) {
-        allCoinsArray.push({
-          name: coin.name,
-          prices: [
-            {
-              exchange: "Kucoin",
-              price: coin.price,
-            },
-          ],
-        });
-      }
-      // if found, update only the price (add to price list)
-      // at the given index
-      else {
-        const index = allCoinsArray
-          .map((element) => element.name)
-          .indexOf(coin.name);
-
-        allCoinsArray[index].prices.push({
-          exchange: "Kucoin",
-          price: coin.price,
-        });
-      }
-    });
-    console.log(allCoinsArray);
+    checkForLiquidity(uniqueCoinsAndPrices)
   };
+
+  const checkForLiquidity = () => {
+    // check if there are less than two prices available
+    // (need at least two for doing arbitrage)
+    // if not, remove it from the array
+
+  }
 
   return (
     <>
@@ -220,118 +143,7 @@ const App = () => {
         {loading ? (
           <h1>LOADING!</h1>
         ) : (
-          <div className="flex flex-row space-around">
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{binancePairs.length} relevant Binance Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {binancePairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{bittrexPairs.length} relevant Bittrex Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {bittrexPairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{bitfinexPairs.length} relevant Bitfinex Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {bitfinexPairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{kucoinPairs.length} relevant Kucoin Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {kucoinPairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{poloniexPairs.length} relevant Poloniex Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {poloniexPairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{huobiPairs.length} relevant Huobi Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {huobiPairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{gateIOPairs.length} relevant Gate.io Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {gateIOPairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{okexPairs.length} relevant OKex Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {okexPairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-            <div className="mx-4 border-2 border-blue-500">
-              <div>
-                <h1>{coinexPairs.length} relevant Coinex Pairs:</h1>
-              </div>
-              <div className="flex flex-col items-center">
-                {coinexPairs.map((crypto) => (
-                  <h3>
-                    {crypto.name}: {crypto.price}
-                  </h3>
-                ))}
-              </div>
-            </div>
-          </div>
+          <div className="flex flex-row space-around"></div>
         )}
       </div>
     </>
