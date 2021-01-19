@@ -131,7 +131,7 @@ const App = () => {
     // check if there are less than two prices available
     // (need at least two for doing arbitrage)
     // if not, remove it from the array
-    uniqueCoins.map((coin) => {
+    uniqueCoins.forEach((coin) => {
       if (coin.priceList.length >= 2) {
         liquidCoins.push(coin);
       }
@@ -140,38 +140,66 @@ const App = () => {
   };
 
   const calculateArbitrageOpportunities = (data) => {
+    const finalArray = [];
     // iterate over every coin
-    data.map((coin) => {
-      // then iterate over the respective price list,
-      // sort prices from low to high
+    data.forEach((coin) => {
+      // then iterate over the respective price list
+      // of each coin and sort prices from low to high
       let sortedArray = coin.priceList.sort((a, b) => a.price - b.price);
 
-      // first entry is the cheapest price, last entry the highest
+      // get cheapest + highest price and their respective exchanges
       const lowest = {
-        name: coin.name,
-        price: sortedArray[0].price,
+        price: parseFloat(sortedArray[0].price),
         exchange: sortedArray[0].exchange,
       };
       const highest = {
-        name: coin.name,
-        price: sortedArray[sortedArray.length - 1].price,
+        price: parseFloat(sortedArray[sortedArray.length - 1].price),
         exchange: sortedArray[sortedArray.length - 1].exchange,
       };
-      calculatePotentialPercentageGain(lowest, highest);
+
+      // create temporary final object that needs to pass filter function
+      const tempCoin = {
+        name: coin.name,
+        lowPrice: lowest.price,
+        highPrice: highest.price,
+        percentageGain: calculatePercentageGain(lowest.price, highest.price),
+        buyExchange: lowest.exchange,
+        sellExchange: highest.exchange,
+      };
+
+      // filter out mismatches (unrealistic gains mostly resulting by
+      // delisting or having low trading volume, see comment on function)
+      if (filterOutMismatches(tempCoin.percentageGain)) {
+        return;
+      } else {
+        finalArray.push(tempCoin);
+      }
     });
+
+    // sort array from highest percentage gain to lowest
+    finalArray.sort((a, b) => b.percentageGain - a.percentageGain);
+
+    console.log(finalArray);
+    return finalArray;
   };
 
-  const calculatePotentialPercentageGain = (lowerNum, higherNum) => {
-    const percentageDiff =
-      ((higherNum.price - lowerNum.price) / lowerNum.price) * 100;
-    console.log(
-      `You can get an increase of ${percentageDiff.toFixed(1)} by buying ${
-        lowerNum.name
-      } from ${lowerNum.exchange} (price: {${lowerNum.price}}) and selling at ${
-        higherNum.exchange
-      } (price: ${higherNum.price})`
+  const calculatePercentageGain = (lowerNum, higherNum) => {
+    // calculate potential percentage gain by buying low, selling high
+    const percentageDiff = Math.round(
+      ((higherNum - lowerNum) / lowerNum) * 100
     );
-    console.log(percentageDiff.toFixed(1));
+
+    return percentageDiff;
+  };
+
+  const filterOutMismatches = (gain) => {
+    // filters out small gains or extremely large gains up to infinity
+    // (happens when coin is at price 0 on exchangeA and price X at exchange B)
+    if (gain <= 5 || gain >= 600 || gain === Infinity) {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   return (
