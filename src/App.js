@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
+// helper functions
 import { getExchangeData } from "./helperFunctions/APIcalls";
+import { checkForLiquidity } from "./helperFunctions/calculations/checkForLiquidity";
+import { getUniqueCoinsAndPrices } from "./helperFunctions/calculations/getUniqueCoinsAndPrices";
+import { calculateArbitrageOpportunities } from "./helperFunctions/calculations/calculateArbitrageOpportunities";
 
 const exchangeList = [
   "Binance",
@@ -51,14 +55,12 @@ const App = () => {
   }
 
   const formatCMCData = (input) => {
-    //declare empty array
     const coinSymbols = [];
 
-    //get all the symbols (i.e. "BTC" for Bitcoin) and push to array
+    //get all the tickers (i.e. "BTC, ETH, XMR" ) and push to array
     input.data.map((coin) => coinSymbols.push(coin.symbol));
 
     //set array of symbols/tickers in state
-
     //temp disabled to not make too many API calls +++++++++++++++++++++++++++++++++++
     //setTopCryptoTickers(coinSymbols);             +++++++++++++++++++++++++++++++++++
   };
@@ -76,130 +78,16 @@ const App = () => {
         pairs,
       });
     });
-    // set in state when .map is done (for optional displaying the raw data)
-    setRawData(exchangeData);
-    //
-    getUniqueCoinsAndPrices(rawData);
+
+    setRawData(exchangeData); // set in state for optional display of raw data
+    sortAndCalculate(rawData); // sort and calculate
   };
 
-  const getUniqueCoinsAndPrices = (dataset) => {
-    const uniqueCoinsAndPrices = [];
-
-    // iterate over every exchange
-    dataset.forEach((exchange) => {
-      // then iterate over every coin
-      exchange.pairs.forEach((coin) => {
-        // map over already processed coins (uniqueCoinsAndPrices)
-        // check if entry of said coin already exists
-        const found = uniqueCoinsAndPrices.some(
-          (item) => item.name === coin.name
-        );
-
-        // if not found, push a new object (inluding coin name) to array
-        if (!found) {
-          uniqueCoinsAndPrices.push({
-            name: coin.name,
-            priceList: [
-              {
-                exchange: `${exchange.name}`,
-                price: coin.price,
-              },
-            ],
-          });
-        }
-
-        // if found -> check at which index,
-        // update only the price (add price @ ExchangeXYZ to list)
-        else {
-          const index = uniqueCoinsAndPrices
-            .map((element) => element.name)
-            .indexOf(coin.name);
-
-          uniqueCoinsAndPrices[index].priceList.push({
-            exchange: `${exchange.name}`,
-            price: coin.price,
-          });
-        }
-      });
-    });
-
-    checkForLiquidity(uniqueCoinsAndPrices);
-  };
-
-  const checkForLiquidity = (uniqueCoins) => {
-    let liquidCoins = [];
-    // check if there are less than two prices available
-    // (need at least two for doing arbitrage)
-    // if not, remove it from the array
-    uniqueCoins.forEach((coin) => {
-      if (coin.priceList.length >= 2) {
-        liquidCoins.push(coin);
-      }
-    });
-    calculateArbitrageOpportunities(liquidCoins);
-  };
-
-  const calculateArbitrageOpportunities = (data) => {
-    const finalArray = [];
-    // iterate over every coin
-    data.forEach((coin) => {
-      // then iterate over the respective price list
-      // of each coin and sort prices from low to high
-      let sortedArray = coin.priceList.sort((a, b) => a.price - b.price);
-
-      // get cheapest + highest price and their respective exchanges
-      const lowest = {
-        price: parseFloat(sortedArray[0].price),
-        exchange: sortedArray[0].exchange,
-      };
-      const highest = {
-        price: parseFloat(sortedArray[sortedArray.length - 1].price),
-        exchange: sortedArray[sortedArray.length - 1].exchange,
-      };
-
-      // create temporary final object that needs to pass filter function
-      const tempCoin = {
-        name: coin.name,
-        lowPrice: lowest.price,
-        highPrice: highest.price,
-        percentageGain: calculatePercentageGain(lowest.price, highest.price),
-        buyExchange: lowest.exchange,
-        sellExchange: highest.exchange,
-      };
-
-      // filter out mismatches (unrealistic gains mostly resulting by
-      // delisting or having low trading volume, see comment on function)
-      if (filterOutMismatches(tempCoin.percentageGain)) {
-        return;
-      } else {
-        finalArray.push(tempCoin);
-      }
-    });
-
-    // sort array from highest percentage gain to lowest
-    finalArray.sort((a, b) => b.percentageGain - a.percentageGain);
-
-    console.log(finalArray);
-    return finalArray;
-  };
-
-  const calculatePercentageGain = (lowerNum, higherNum) => {
-    // calculate potential percentage gain by buying low, selling high
-    const percentageDiff = Math.round(
-      ((higherNum - lowerNum) / lowerNum) * 100
-    );
-
-    return percentageDiff;
-  };
-
-  const filterOutMismatches = (gain) => {
-    // filters out small gains or extremely large gains up to infinity
-    // (happens when coin is at price 0 on exchangeA and price X at exchange B)
-    if (gain <= 5 || gain >= 600 || gain === Infinity) {
-      return true;
-    } else {
-      return false;
-    }
+  const sortAndCalculate = () => {
+    const uniques = getUniqueCoinsAndPrices(rawData);
+    const liquidUniques = checkForLiquidity(uniques);
+    const result = calculateArbitrageOpportunities(liquidUniques);
+    console.log(result);
   };
 
   return (

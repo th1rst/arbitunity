@@ -2,6 +2,9 @@ import axios from "axios";
 import { topCryptosImport } from "../topCryptoTickers";
 import { formatAPIdata } from "./FormatAPIdata";
 
+// different query strings and data formats for every exchange.
+// handled by switch/case at the bottom.
+// once recieved, data gets sent to formatting function
 export const getExchangeData = async (exchangeName) => {
   let payload = [];
 
