@@ -8,6 +8,9 @@ import { checkForLiquidity } from "./helperFunctions/calculations/checkForLiquid
 import { getUniqueCoinsAndPrices } from "./helperFunctions/calculations/getUniqueCoinsAndPrices";
 import { calculateArbitrageOpportunities } from "./helperFunctions/calculations/calculateArbitrageOpportunities";
 
+// components
+import { LoadingPage } from "./Components/LoadingPage";
+
 const exchangeList = [
   "Binance",
   "Bittrex",
@@ -28,7 +31,18 @@ const App = () => {
 
   const [topX, setTopX] = useState(500);
   const [rawData, setRawData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [ready, setReady] = useState(false);
+  const [loadedList, setLoadedList] = useState(
+    { Binance: { loaded: false } },
+    { Bittrex: { loaded: false } },
+    { Bitfinex: { loaded: false } },
+    { Kucoin: { loaded: false } },
+    { Poloniex: { loaded: false } },
+    { Huobi: { loaded: false } },
+    { GateIO: { loaded: false } },
+    { OKex: { loaded: false } },
+    { CoinEx: { loaded: false } }
+  );
 
   useEffect(() => {
     //getCMCdata();                 +++++++++++++++++++++++++++++++++++
@@ -77,6 +91,14 @@ const App = () => {
         name: exchange,
         pairs,
       });
+      // set loaded flag on every iteration and re-render (wanted behavior!)
+      // set checkmark on <LoadingPage /> for every API that has responed incl. ping
+      setLoadedList((prevState) => {
+        return {
+          ...prevState,
+          [exchange]: { loaded: true },
+        };
+      });
     });
 
     setRawData(exchangeData); // set in state for optional display of raw data
@@ -93,11 +115,20 @@ const App = () => {
   return (
     <>
       <div className="flex flex-col items-center">
-        <h1 className="my-4 text-2xl font-semibold uppercase">Arbitunity</h1>
         <div className="w-full flex flex-row justify-center">
-          {loading ? <h1>LOADING!</h1> : <h1>API HAS RESPONDED!</h1>}
+          <h1 className="my-4 text-3xl font-semibold uppercase">
+            Ar<span className="text-4xl text-yellow-500">₿</span>itunity
+          </h1>
         </div>
-        {loading ? (
+
+        <div className="w-full flex flex-row justify-center">
+          {!ready ? (
+            <LoadingPage exchangeList={exchangeList} loadedList={loadedList} />
+          ) : (
+            <h1>API HAS RESPONDED!</h1>
+          )}
+        </div>
+        {!ready ? (
           <h1>LOADING!</h1>
         ) : (
           <div className="flex flex-row space-around"></div>

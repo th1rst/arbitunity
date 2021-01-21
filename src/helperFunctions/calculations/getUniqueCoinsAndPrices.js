@@ -26,6 +26,7 @@ export const getUniqueCoinsAndPrices = (dataset) => {
 
         // if found -> check at which index,
         // update only the price (add price @ ExchangeXYZ to list)
+        // (useless on the first exchange, but needed for comparing data of multiple ones)
         else {
           const index = uniqueCoinsAndPrices
             .map((element) => element.name)
