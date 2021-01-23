@@ -46,7 +46,9 @@ const App = () => {
 
   useEffect(() => {
     //getCMCdata();                 +++++++++++++++++++++++++++++++++++
-    getAPIData();
+    getAPIData().then(() => {
+      sortAndCalculate(rawData); // sort and calculate
+    });
   }, []);
 
   //get the Top X (default: 500) cryptos from CoinMarketCap
@@ -91,18 +93,16 @@ const App = () => {
         name: exchange,
         pairs,
       });
-      // set loaded flag on every iteration and re-render (wanted behavior!)
-      // set checkmark on <LoadingPage /> for every API that has responed incl. ping
+      // set loaded flag on every iteration and re-render (wanted behavior! user will
+      // see when each exchange loaded and how long it took for it to respond on <LoadingPage />)
       setLoadedList((prevState) => {
         return {
           ...prevState,
-          [exchange]: { loaded: true },
+          [exchange]: { loaded: true, responseTime: pairs.responseTime },
         };
       });
     });
-
     setRawData(exchangeData); // set in state for optional display of raw data
-    sortAndCalculate(rawData); // sort and calculate
   };
 
   const sortAndCalculate = () => {
@@ -120,7 +120,6 @@ const App = () => {
             Ar<span className="text-4xl text-yellow-500">₿</span>itunity
           </h1>
         </div>
-
         <div className="w-full flex flex-row justify-center">
           {!ready ? (
             <LoadingPage exchangeList={exchangeList} loadedList={loadedList} />
@@ -128,11 +127,8 @@ const App = () => {
             <h1>API HAS RESPONDED!</h1>
           )}
         </div>
-        {!ready ? (
-          <h1>LOADING!</h1>
-        ) : (
-          <div className="flex flex-row space-around"></div>
-        )}
+
+        <div className="flex flex-row space-around"></div>
       </div>
     </>
   );
