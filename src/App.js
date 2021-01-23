@@ -9,7 +9,7 @@ import { getUniqueCoinsAndPrices } from "./helperFunctions/calculations/getUniqu
 import { calculateArbitrageOpportunities } from "./helperFunctions/calculations/calculateArbitrageOpportunities";
 
 // components
-import { LoadingPage } from "./Components/LoadingPage";
+import { LoadingModal } from "./Components/LoadingModal";
 
 const exchangeList = [
   "Binance",
@@ -31,7 +31,7 @@ const App = () => {
 
   const [topX, setTopX] = useState(500);
   const [rawData, setRawData] = useState([]);
-  const [ready, setReady] = useState(false);
+  const [arbitragePairs, setArbitragePairs] = useState([]);
   const [loadedList, setLoadedList] = useState(
     { Binance: { loaded: false } },
     { Bittrex: { loaded: false } },
@@ -109,23 +109,31 @@ const App = () => {
     const uniques = getUniqueCoinsAndPrices(rawData);
     const liquidUniques = checkForLiquidity(uniques);
     const result = calculateArbitrageOpportunities(liquidUniques);
-    console.log(result);
+    setArbitragePairs(result);
   };
 
   return (
     <>
+      <LoadingModal exchangeList={exchangeList} loadedList={loadedList} />
       <div className="flex flex-col items-center">
         <div className="w-full flex flex-row justify-center">
           <h1 className="my-4 text-3xl font-semibold uppercase">
             Ar<span className="text-4xl text-yellow-500">₿</span>itunity
           </h1>
         </div>
-        <div className="w-full flex flex-row justify-center">
-          {!ready ? (
-            <LoadingPage exchangeList={exchangeList} loadedList={loadedList} />
-          ) : (
-            <h1>API HAS RESPONDED!</h1>
-          )}
+        <div className="w-full flex flex-col items-center justify-center">
+          {arbitragePairs.map((pair) => (
+            <div className="m-4">
+              <p>Coin: {pair.name}</p>
+              <p>
+                buy @ {pair.lowPrice} from {pair.buyExchange}
+              </p>
+              <p>
+                sell @ {pair.highPrice} from {pair.sellExchange}
+              </p>
+              <p>Possible percentage gain: {pair.percentageGain}%</p>
+            </div>
+          ))}
         </div>
 
         <div className="flex flex-row space-around"></div>
