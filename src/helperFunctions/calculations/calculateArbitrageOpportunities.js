@@ -1,7 +1,7 @@
 import { filterOutMismatches } from "./filterOutMismatches";
 import { calculatePercentageGain } from "./calculatePercentageGain";
 
-export const calculateArbitrageOpportunities = (data) => {
+export const calculateArbitrageOpportunities = (data, minGain, maxGain) => {
   const finalArray = [];
   // iterate over every coin
   data.forEach((coin) => {
@@ -30,7 +30,7 @@ export const calculateArbitrageOpportunities = (data) => {
 
     // filter out mismatches (unrealistic gains mostly resulting by
     // delisting or having low or no trading volume at all)
-    if (filterOutMismatches(tempCoin.percentageGain)) {
+    if (filterOutMismatches(tempCoin.percentageGain, minGain, maxGain)) {
       finalArray.push(tempCoin);
     } else {
       return;

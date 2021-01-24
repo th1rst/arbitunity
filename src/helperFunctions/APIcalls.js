@@ -1,11 +1,10 @@
 import axios from "axios";
-import { topCryptosImport } from "../topCryptoTickers";
 import { formatAPIdata } from "./FormatAPIdata";
 
 // different query strings and data formats for every exchange.
 // handled by switch/case at the bottom.
 // once recieved, data gets sent to formatting function
-export const getExchangeData = async (exchangeName) => {
+export const getExchangeData = async (exchangeName, topCryptoTickers) => {
   let payload = [];
 
   const getBinanceData = async () => {
@@ -21,7 +20,7 @@ export const getExchangeData = async (exchangeName) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptosImport, "Binance");
+      formatted = formatAPIdata(res.data, topCryptoTickers, "Binance");
     } catch (error) {
       console.log(error);
     }
@@ -41,7 +40,7 @@ export const getExchangeData = async (exchangeName) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptosImport, "Bittrex");
+      formatted = formatAPIdata(res.data, topCryptoTickers, "Bittrex");
     } catch (error) {
       console.log(error);
     }
@@ -63,7 +62,7 @@ export const getExchangeData = async (exchangeName) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptosImport, "Bitfinex");
+      formatted = formatAPIdata(res.data, topCryptoTickers, "Bitfinex");
     } catch (error) {
       console.log(error);
     }
@@ -87,7 +86,7 @@ export const getExchangeData = async (exchangeName) => {
       // call formatting function to get relevant trading pairs
       formatted = formatAPIdata(
         res.data.data.ticker,
-        topCryptosImport,
+        topCryptoTickers,
         "Kucoin"
       );
     } catch (error) {
@@ -111,7 +110,7 @@ export const getExchangeData = async (exchangeName) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptosImport, "Poloniex");
+      formatted = formatAPIdata(res.data, topCryptoTickers, "Poloniex");
     } catch (error) {
       console.log(error);
     }
@@ -131,7 +130,7 @@ export const getExchangeData = async (exchangeName) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data.data, topCryptosImport, "Huobi");
+      formatted = formatAPIdata(res.data.data, topCryptoTickers, "Huobi");
     } catch (error) {
       console.log(error);
     }
@@ -151,7 +150,7 @@ export const getExchangeData = async (exchangeName) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptosImport, "GateIO");
+      formatted = formatAPIdata(res.data, topCryptoTickers, "GateIO");
     } catch (error) {
       console.log(error);
     }
@@ -173,7 +172,7 @@ export const getExchangeData = async (exchangeName) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptosImport, "OKex");
+      formatted = formatAPIdata(res.data, topCryptoTickers, "OKex");
     } catch (error) {
       console.log(error);
     }
@@ -195,7 +194,7 @@ export const getExchangeData = async (exchangeName) => {
       // call formatting function to get relevant trading pairs
       formatted = formatAPIdata(
         res.data.data.ticker,
-        topCryptosImport,
+        topCryptoTickers,
         "CoinEx"
       );
     } catch (error) {
