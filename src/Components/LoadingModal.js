@@ -9,8 +9,8 @@
 import React from "react";
 import { CircularProgress } from "@material-ui/core";
 import DnsIcon from "@material-ui/icons/Dns";
-import { checkResponseTime } from "../helperFunctions/calculations/loadingPage/checkResponseTime";
-import { checkIfLoaded } from "../helperFunctions/calculations/loadingPage/checkIfLoaded";
+import { checkResponseTime } from "../functions/calculations/loadingPage/checkResponseTime";
+import { checkIfLoaded } from "../functions/calculations/loadingPage/checkIfLoaded";
 
 export const LoadingModal = (props) => {
   const exchangeListLength = props.exchangeList.length;
@@ -18,9 +18,12 @@ export const LoadingModal = (props) => {
 
   if (loadedListLength < exchangeListLength) {
     return (
-      <div className="absolute top-0 w-screen h-screen">
+      <div
+        className="absolute z-50 top-0 w-screen h-screen"
+        style={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
+      >
         <div className="w-full h-full flex flex-row items-center justify-center">
-          <div className="w-1/2 flex flex-col items-center border-2 border-gray-400 rounded-lg shadow-xl">
+          <div className="w-1/2 flex flex-col items-center border-2 border-gray-400 rounded-lg shadow-xl bg-white">
             <div className="flex flex-row justify-center items-center">
               <DnsIcon className="mx-4 text-green-500" />
               <h1 className="py-4 text-2xl text-center font-semibold">

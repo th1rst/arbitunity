@@ -1,9 +1,9 @@
 import axios from "axios";
-import { formatAPIdata } from "./FormatAPIdata";
+import { formatExchangeData } from "./Formatting/formatExchangeData";
 
-// different query strings and data formats for every exchange.
-// handled by switch/case at the bottom.
-// once recieved, data gets sent to formatting function
+// Different query strings and data formats for every exchange.
+// that are being handled by switch/case at the bottom.
+// Once received, the data gets sent to formatting function
 export const getExchangeData = async (exchangeName, topCryptoTickers) => {
   let payload = [];
 
@@ -20,7 +20,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptoTickers, "Binance");
+      formatted = formatExchangeData(res.data, topCryptoTickers, "Binance");
     } catch (error) {
       console.log(error);
     }
@@ -40,7 +40,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptoTickers, "Bittrex");
+      formatted = formatExchangeData(res.data, topCryptoTickers, "Bittrex");
     } catch (error) {
       console.log(error);
     }
@@ -62,7 +62,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptoTickers, "Bitfinex");
+      formatted = formatExchangeData(res.data, topCryptoTickers, "Bitfinex");
     } catch (error) {
       console.log(error);
     }
@@ -84,7 +84,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(
+      formatted = formatExchangeData(
         res.data.data.ticker,
         topCryptoTickers,
         "Kucoin"
@@ -110,7 +110,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptoTickers, "Poloniex");
+      formatted = formatExchangeData(res.data, topCryptoTickers, "Poloniex");
     } catch (error) {
       console.log(error);
     }
@@ -130,7 +130,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data.data, topCryptoTickers, "Huobi");
+      formatted = formatExchangeData(res.data.data, topCryptoTickers, "Huobi");
     } catch (error) {
       console.log(error);
     }
@@ -150,7 +150,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptoTickers, "GateIO");
+      formatted = formatExchangeData(res.data, topCryptoTickers, "GateIO");
     } catch (error) {
       console.log(error);
     }
@@ -172,7 +172,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(res.data, topCryptoTickers, "OKex");
+      formatted = formatExchangeData(res.data, topCryptoTickers, "OKex");
     } catch (error) {
       console.log(error);
     }
@@ -192,7 +192,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
       responseTime = new Date() - time;
 
       // call formatting function to get relevant trading pairs
-      formatted = formatAPIdata(
+      formatted = formatExchangeData(
         res.data.data.ticker,
         topCryptoTickers,
         "CoinEx"

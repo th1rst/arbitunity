@@ -5,7 +5,9 @@
 // of course every API is differently formatted,
 // hence the different functions
 
-export const formatAPIdata = (APIdata, topCryptoTickers, exchangeName) => {
+// select function on switch/case at the bottom
+
+export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
   let formatted = [];
 
   const formatBinanceData = (APIdata, topCryptoTickers) => {
