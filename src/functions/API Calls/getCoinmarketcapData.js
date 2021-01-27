@@ -4,7 +4,7 @@ import { formatCoinmarketcapData } from "./Formatting/formatCoinmarketcapData";
 //get the Top X (default: 500) cryptos from CoinMarketCap
 export const getCoinmarketcapData = async (topX) => {
   const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
-  const queryString = `?start=1&limit=${topX}&convert=USD`;
+  const queryString = `?start=1&limit=${topX}`;
   
   try {
     

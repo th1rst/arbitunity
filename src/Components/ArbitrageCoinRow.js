@@ -1,5 +1,10 @@
 import React from "react";
 import Slide from "@material-ui/core/Slide";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
 import { getExchangeURL } from "../functions/API Calls/getExchangeURL";
 
 export const ArbitrageCoinRow = (props) => {
@@ -15,77 +20,191 @@ export const ArbitrageCoinRow = (props) => {
   } = props;
 
   return (
-    <div className="w-full my-8 flex flex-row justify-evenly items-center">
-      {/* ---------- BUY CARD ---------- */}
+    <>
+      {/* ----- Breakpoint > lg ----- */}
+      <div className="hidden lg:flex flex-row justify-evenly items-center w-full my-8 ">
+        {/* ---------- BUY CARD ---------- */}
+        <Slide direction="right" in={loaded} mountOnEnter unmountOnExit>
+          <Card className="w-1/4 border border-green-500">
+            <div className="flex flex-row justify-between items-center">
+              <img
+                className="mt-2 ml-8 w-20 h-20 rounded-full"
+                src={`https://s2.coinmarketcap.com/static/img/coins/128x128/${id}.png`}
+                alt="coin logo"
+              />
+              <Typography className="pt-4 pr-8" variant="h3" component="h3">
+                {name}
+              </Typography>
+            </div>
+            <CardContent>
+              <div className="flex flex-row justify-around items-center">
+                <Typography variant="p" component="p">
+                  Buy Price:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  {lowPrice}
+                </Typography>
+              </div>
+              <div className="flex flex-row justify-around items-center">
+                <Typography variant="p" component="p">
+                  From:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  {buyExchange}
+                </Typography>
+              </div>
+            </CardContent>
+            <CardActions className="border-t">
+              <Button size="medium" color="primary">
+                <a
+                  className="mt-2 text-center"
+                  href={`${getExchangeURL(name, buyExchange)}`}
+                  target="_blank noopener noreferrer"
+                >
+                  view on {buyExchange}
+                </a>
+              </Button>
+            </CardActions>
+          </Card>
+        </Slide>
 
-      <Slide direction="right" in={loaded} mountOnEnter unmountOnExit>
-        <div className="w-1/5 px-8 py-4 border-2 border-gray-300 rounded-xl bg-green-400 shadow-xl">
-          <div className="flex flex-row items-center justify-between mb-4">
-            <img
-              className="w-20 h-20 rounded-full"
-              src={`https://s2.coinmarketcap.com/static/img/coins/128x128/${id}.png`}
-              alt="coin logo"
-            />
-            <p className="text-4xl mb-2 font-bold text-green-800">{name}</p>
-          </div>
-
-          <div className="flex flex-row justify-between">
-            Buy price:
-            <span className="font-semibold">{lowPrice}</span>
-          </div>
-          <div className="flex flex-row justify-between">
-            from:
-            <span className="font-semibold">{buyExchange} </span>
-          </div>
-          <div className="flex flex-row justify-center">
-            <a
-              className="mt-2 text-center text-blue-600 underline"
-              href={`${getExchangeURL(name, buyExchange)}`}
-              target="_blank noopener noreferrer"
-            >
-              view on {buyExchange}
-            </a>
-          </div>
+        {/* ---------- PERCENTAGE GAIN ---------- */}
+        <div className="flex flex-row justify-center items-center">
+          <Slide direction="up" in={loaded} mountOnEnter unmountOnExit>
+            <div>
+              <p className="text-xl text-white font-semibold">
+                + {percentageGain}%
+              </p>
+            </div>
+          </Slide>
         </div>
-      </Slide>
 
-      {/* ---------- PERCENTAGE GAIN ---------- */}
-      <div className="flex flex-row justify-center items-center">
-        <Slide direction="up" in={loaded} mountOnEnter unmountOnExit>
-          <p className="text-xl font-semibold">+ {percentageGain}%</p>
+        {/* ---------- SELL CARD ---------- */}
+        <Slide direction="left" in={loaded} mountOnEnter unmountOnExit>
+          <Card className="w-1/4 border border-red-500 shadow-xl">
+            <div className="flex flex-row justify-between items-center">
+              <img
+                className="mt-2 ml-8 w-20 h-20 rounded-full"
+                src={`https://s2.coinmarketcap.com/static/img/coins/128x128/${id}.png`}
+                alt="coin logo"
+              />
+              <Typography className="pt-4 pr-8" variant="h3" component="h3">
+                {name}
+              </Typography>
+            </div>
+            <CardContent>
+              <div className="flex flex-row justify-around items-center">
+                <Typography variant="p" component="p">
+                  Sell Price:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  {highPrice}
+                </Typography>
+              </div>
+              <div className="flex flex-row justify-around items-center">
+                <Typography variant="p" component="p">
+                  At:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  {sellExchange}
+                </Typography>
+              </div>
+            </CardContent>
+            <CardActions>
+              <Button size="medium" color="primary">
+                <a
+                  className="mt-2 text-center"
+                  href={`${getExchangeURL(name, sellExchange)}`}
+                  target="_blank noopener noreferrer"
+                >
+                  view on {sellExchange}
+                </a>
+              </Button>
+            </CardActions>
+          </Card>
         </Slide>
       </div>
 
-      {/* ---------- SELL CARD ---------- */}
-      <Slide direction="left" in={loaded} mountOnEnter unmountOnExit>
-        <div className="w-1/5 px-8 py-4 border-2 border-gray-300 rounded-xl bg-red-400 shadow-xl">
-          <div className="flex flex-row items-center justify-between mb-4">
-            <img
-              className="w-20 h-20 rounded-full"
-              src={`https://s2.coinmarketcap.com/static/img/coins/128x128/${id}.png`}
-              alt="coin logo"
-            />
-            <p className="text-4xl mb-2 font-bold text-red-800">{name}</p>
-          </div>
-          <div className="flex flex-row justify-between">
-            Sell price:
-            <span className="font-semibold">{highPrice}</span>
-          </div>
-          <div className="flex flex-row justify-between">
-            At:
-            <span className="font-semibold">{sellExchange}</span>
-          </div>
-          <div className="flex flex-row justify-center">
-            <a
-              className="mt-2 text-center text-blue-600 underline"
-              href={`${getExchangeURL(name, sellExchange)}`}
-              target="_blank noopener noreferrer"
-            >
-              view on {sellExchange}
-            </a>
-          </div>
-        </div>
-      </Slide>
-    </div>
+      {/* ----- Breakpoint < lg ----- */}
+      <div className="flex lg:hidden flex-row justify-evenly items-center w-full my-8 ">
+        {/* ---------- BUY CARD ---------- */}
+        <Slide direction="right" in={loaded} mountOnEnter unmountOnExit>
+          <Card className="w-3/4 border border-green-500">
+            <div className="flex flex-row justify-between items-center">
+              <img
+                className="mt-2 ml-8 w-20 h-20 rounded-full"
+                src={`https://s2.coinmarketcap.com/static/img/coins/128x128/${id}.png`}
+                alt="coin logo"
+              />
+              <Typography className="pt-4 pr-8" variant="h3" component="h3">
+                {name}
+              </Typography>
+            </div>
+            <CardContent>
+              <div className="flex flex-row justify-around items-center">
+                <Typography variant="p" component="p">
+                  Buy Price:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  {lowPrice}
+                </Typography>
+              </div>
+              <div className="flex flex-row justify-around items-center mb-4">
+                <Typography variant="p" component="p">
+                  From:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  {buyExchange}
+                </Typography>
+              </div>
+              <div className="flex flex-row justify-around items-center">
+                <Typography variant="p" component="p">
+                  Sell Price:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  {highPrice}
+                </Typography>
+              </div>
+              <div className="flex flex-row justify-around items-center">
+                <Typography variant="p" component="p">
+                  At:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  {sellExchange}
+                </Typography>
+              </div>
+              <div className="mt-4 flex flex-col justify-center items-center">
+                <Typography variant="p" component="p">
+                  Possible Gain:
+                </Typography>
+                <Typography variant="h5" component="h5">
+                  + {percentageGain}%
+                </Typography>
+              </div>
+            </CardContent>
+            <CardActions className="border-t">
+              <Button size="medium" color="primary">
+                <a
+                  className="mt-2 text-center"
+                  href={`${getExchangeURL(name, buyExchange)}`}
+                  target="_blank noopener noreferrer"
+                >
+                  view on {buyExchange}
+                </a>
+              </Button>
+              <Button size="medium" color="primary">
+                <a
+                  className="mt-2 text-center"
+                  href={`${getExchangeURL(name, sellExchange)}`}
+                  target="_blank noopener noreferrer"
+                >
+                  view on {sellExchange}
+                </a>
+              </Button>
+            </CardActions>
+          </Card>
+        </Slide>
+      </div>
+    </>
   );
 };

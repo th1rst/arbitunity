@@ -84,21 +84,8 @@ const App = () => {
       minGain,
       maxGain
     );
-    console.log(result)
-    // final render pair that gets mapped over and displayed
+    // final render pairs that get mapped over and displayed
     setArbitragePairs(result);
-  };
-
-  const displayTopCryptoLimit = (value) => {
-    return `${value}`;
-  };
-
-  const displayMinGain = (value) => {
-    return `${value}`;
-  };
-
-  const displayMaxGain = (value) => {
-    return `${value}`;
   };
 
   const updateUI = async () => {
@@ -118,16 +105,15 @@ const App = () => {
   };
 
   return (
-    <div>
-      <div className="py-2 w-full shadow-xl border-b text-center">
+    <div style={{ backgroundColor: "#19354a" }} className="border-b">
+      <div className="py-2 w-full shadow-xl border-b text-center bg-gray-100">
         <h1 className="text-4xl font-semibold uppercase">
           Ar<span className="text-5xl text-yellow-500">₿</span>itunity
         </h1>
-
         <h2 className="font-semibold">a Crptocurrency arbitrage calculator</h2>
       </div>
 
-      <div className="w-full mt-8 flex flex-row justify-content">
+      <div className="w-full mt-8 flex flex-row justify-content text-white">
         <div className="mx-auto">
           <h1 className="mb-8">
             Filter Top <span className="font-bold">{`${topX}`}</span> Cryptos
@@ -138,7 +124,7 @@ const App = () => {
             onChange={(event, newValue) => {
               setTopX(newValue);
             }}
-            getAriaValueText={displayTopCryptoLimit}
+            getAriaValueText={(value) => `${value}`}
             aria-labelledby="discrete-slider"
             valueLabelDisplay="auto"
             step={10}
@@ -147,7 +133,7 @@ const App = () => {
           />
         </div>
       </div>
-      <div className="mt-8 flex flex-row justify-center">
+      <div className="mt-8 flex flex-row justify-center text-white">
         <div className="mx-12 min-w-1/4">
           <h1 className="mb-8">Minimum gain: {minGain}%</h1>
           <Slider
@@ -157,7 +143,7 @@ const App = () => {
               setMinGain(newValue);
               setGainTip(true);
             }}
-            getAriaValueText={displayMinGain}
+            getAriaValueText={(value) => `${value}`}
             aria-labelledby="discrete-slider"
             valueLabelDisplay="auto"
             step={1}
@@ -165,7 +151,7 @@ const App = () => {
             max={50}
           />
         </div>
-        <div className="mx-12 min-w-1/4">
+        <div className="mx-12 min-w-1/4 text-white">
           <h1 className="mb-8">Maximum gain: {maxGain}%</h1>
           <Slider
             width="50%"
@@ -174,7 +160,7 @@ const App = () => {
               setMaxGain(newValue);
               setGainTip(true);
             }}
-            getAriaValueText={displayMaxGain}
+            getAriaValueText={(value) => `${value}`}
             aria-labelledby="discrete-slider"
             valueLabelDisplay="auto"
             step={1}
@@ -187,7 +173,7 @@ const App = () => {
       {gainTip ? (
         <Grow in={gainTip}>
           <div className="w-full text-center">
-            <div className="mt-6 mb-8 mx-auto w-1/2 text-justify italic">
+            <div className="mt-6 mb-8 mx-auto w-3/4 md:w-1/2 text-justify italic text-white">
               <b>Note:</b>
               <br />
               Absurdly high potential gains are usually because of delisting,
@@ -206,7 +192,7 @@ const App = () => {
         </Button>
       </div>
 
-      <div className="w-full my-4 text-2xl font-bold flex flex-row justify-evenly border-b">
+      <div className="hidden md:w-full md:my-4 md:text-2xl md:font-bold md:flex md:flex-row md:justify-evenly md:border-b md:text-white">
         <p className="mb-2">Buy:</p>
         <p className="mb-2">Percentage gain:</p>
         <p className="mb-2">Sell:</p>

@@ -3,7 +3,6 @@ export const getUniqueCoinsAndPrices = (dataset) => {
 
   // iterate over every exchange
   dataset.forEach((exchange) => {
-    console.log(exchange)
     // then iterate over every coin
     exchange.pairs.formatted.forEach((coin) => {
       // map over already processed coins (uniqueCoinsAndPrices)
