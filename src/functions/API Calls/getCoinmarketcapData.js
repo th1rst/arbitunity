@@ -17,7 +17,7 @@ export const getCoinmarketcapData = async (topX) => {
         },
       }
     );
-    formatCoinmarketcapData(res.data);
+    return formatCoinmarketcapData(res.data);
   } catch (error) {
     console.log(error);
   }

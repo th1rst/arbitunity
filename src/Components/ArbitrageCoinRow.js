@@ -16,7 +16,6 @@ export const ArbitrageCoinRow = (props) => {
 
   return (
     <div className="w-full my-8 flex flex-row justify-evenly items-center">
-      
       {/* ---------- BUY CARD ---------- */}
       <Slide direction="right" in={loaded} mountOnEnter unmountOnExit>
         <div className="w-1/5 px-8 py-4 border-2 border-gray-300 rounded-xl bg-green-400 shadow-xl">
@@ -51,7 +50,7 @@ export const ArbitrageCoinRow = (props) => {
 
       {/* ---------- PERCENTAGE GAIN ---------- */}
       <div className="flex flex-row justify-center items-center">
-        <Slide direction="down" in={loaded} mountOnEnter unmountOnExit>
+        <Slide direction="up" in={loaded} mountOnEnter unmountOnExit>
           <p className="text-xl font-semibold">+ {percentageGain}%</p>
         </Slide>
       </div>

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 // MaterialUI
 import Slider from "@material-ui/core/Slider";
 import Button from "@material-ui/core/Button";
+import Grow from "@material-ui/core/Grow";
 
 // functions
 import { getCoinmarketcapData } from "./functions/API Calls/getCoinmarketcapData";
@@ -13,41 +14,46 @@ import { calculateArbitrageOpportunities } from "./functions/calculations/calcul
 
 // components
 import { LoadingModal } from "./Components/LoadingModal";
+import { ArbitrageCoinRow } from "./Components/ArbitrageCoinRow";
+import { SkeletonRow } from "./Components/SkeletonRow";
 
 // data
 import { defaultLoadedList } from "./data/defaultLoadedList";
 import { exchangeList } from "./data/exchangeList";
 import { topCryptosImport } from "./topCryptoTickers";
-import { ArbitrageCoinRow } from "./Components/ArbitrageCoinRow";
-import { SkeletonRow } from "./Components/SkeletonRow";
 
 const App = () => {
   const [topX, setTopX] = useState(500);
-  const [topCryptoTickers, setTopCryptoTickers] = useState(topCryptosImport); //*++++++++++++++++++
+  const [topCryptoTickers, setTopCryptoTickers] = useState([]);
   const [minGain, setMinGain] = useState(5);
-  const [maxGain, setMaxGain] = useState(50);
+  const [maxGain, setMaxGain] = useState(25);
   const [gainTip, setGainTip] = useState(false);
   const [rawData, setRawData] = useState([]);
   const [arbitragePairs, setArbitragePairs] = useState([]);
   const [loadedList, setLoadedList] = useState(defaultLoadedList);
-
   const exchangeListLength = exchangeList.length;
   const loadedListLength = Object.entries(loadedList).length;
 
   useEffect(() => {
-    // getCoinmarketcapData();
-   
-    getDataFromExchanges();
+    // first, get Top X (default: top500) Cryptos from CoinmarketCap,
+    // then, pass on the topX to Exchange API calls (for cross-checking)
+    const getData = async () => {
+      await getCoinmarketcapData(topX).then((res) => {
+        getDataFromExchanges(res);
+        setTopCryptoTickers(res);
+      });
+    };
+    getData();
   }, []);
 
-  const getDataFromExchanges = async () => {
+  const getDataFromExchanges = async (topCryptos) => {
     const exchangeData = [];
 
     // make API call for each exchange
     // incl. formatting and filtering
     // on "getExchangeData" (separate helperFunctions)
     const promiseListData = exchangeList.map(async (exchange) => {
-      const pairs = await getExchangeData(exchange, topCryptoTickers);
+      const pairs = await getExchangeData(exchange, topCryptos);
 
       // Set loaded flag on every iteration and re-render.
       // This is wanted behavior! User will see when each
@@ -94,14 +100,15 @@ const App = () => {
     return `${value}`;
   };
 
-  const updateUI = () => {
+  const updateUI = async () => {
     // if user input is more than data available,
     // make new API call to get more data
-    if (topX > topCryptoTickers.length) {
-      getCoinmarketcapData().then(() => {
-        getDataFromExchanges().then(() => {
-          sortAndCalculate(rawData);
-        });
+    if (topX !== topCryptoTickers.length) {
+      setLoadedList(defaultLoadedList);
+
+      await getCoinmarketcapData(topX).then((res) => {
+        getDataFromExchanges(res);
+        setTopCryptoTickers(res);
       });
     } else {
       // if not, just re-sort
@@ -119,14 +126,13 @@ const App = () => {
         <h2 className="font-semibold">a Crptocurrency arbitrage calculator</h2>
       </div>
 
-      <div className="mt-8 flex flex-row justify-around text-center">
-        <div className="w-1/4">
+      <div className="w-full mt-8 flex flex-row justify-content">
+        <div className="mx-auto">
           <h1 className="mb-8">
             Filter Top <span className="font-bold">{`${topX}`}</span> Cryptos
             from CoinMarketCap
           </h1>
           <Slider
-            width="50%"
             defaultValue={topX}
             onChange={(event, newValue) => {
               setTopX(newValue);
@@ -139,7 +145,9 @@ const App = () => {
             max={1000}
           />
         </div>
-        <div className="w-1/4">
+      </div>
+      <div className="mt-8 flex flex-row justify-center">
+        <div className="mx-12 min-w-1/4">
           <h1 className="mb-8">Minimum gain: {minGain}%</h1>
           <Slider
             width="50%"
@@ -156,7 +164,7 @@ const App = () => {
             max={50}
           />
         </div>
-        <div className="w-1/4">
+        <div className="mx-12 min-w-1/4">
           <h1 className="mb-8">Maximum gain: {maxGain}%</h1>
           <Slider
             width="50%"
@@ -174,19 +182,22 @@ const App = () => {
           />
         </div>
       </div>
+
       {gainTip ? (
-        <div className="w-full text-center">
-          <div className="mt-6 mb-8 mx-auto w-1/2 text-justify italic">
-            <b>Note:</b>
-            <br />
-            Absurdly high potential gains are usually because of delisting,
-            maintenance or no/low volume on the respective exchange. Generally,
-            this is expected since most API's also output delisted coins - but
-            this results in dead links and, quite frankly, a waste of time. Best
-            results are achieved when staying within a reasonable range, i.e.
-            between 5 and 50 percent.
+        <Grow in={gainTip}>
+          <div className="w-full text-center">
+            <div className="mt-6 mb-8 mx-auto w-1/2 text-justify italic">
+              <b>Note:</b>
+              <br />
+              Absurdly high potential gains are usually because of delisting,
+              maintenance or no/low volume on the respective exchange.
+              Generally, this is expected since most API's also output delisted
+              coins - but this results in dead links and, quite frankly, a waste
+              of time. Best results are achieved when staying within a
+              reasonable range, i.e. between 5 and 25 percent.
+            </div>
           </div>
-        </div>
+        </Grow>
       ) : null}
       <div className="mt-4 mb-8 text-center">
         <Button variant="contained" color="primary" onClick={updateUI}>
