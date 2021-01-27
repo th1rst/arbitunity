@@ -21,7 +21,6 @@ import { SkeletonRow } from "./Components/SkeletonRow";
 // data
 import { defaultLoadedList } from "./data/defaultLoadedList";
 import { exchangeList } from "./data/exchangeList";
-import { topCryptosImport } from "./topCryptoTickers";
 
 const App = () => {
   const [topX, setTopX] = useState(500);
@@ -37,15 +36,17 @@ const App = () => {
 
   useEffect(() => {
     // first, get Top X (default: top500) Cryptos from CoinmarketCap,
-    // then, pass on the topX to Exchange API calls (for cross-checking)
-    const getData = async () => {
-      await getCoinmarketcapData(topX).then((res) => {
-        getDataFromExchanges(res);
-        setTopCryptoTickers(res);
-      });
-    };
+    // then, pass on the topX to Exchange API calls so the results
+    // get cross-checked against the topX and sorted accordingly.
     getData();
   }, []);
+
+  const getData = async () => {
+    await getCoinmarketcapData(topX).then((res) => {
+      getDataFromExchanges(res);
+      setTopCryptoTickers(res);
+    });
+  };
 
   const getDataFromExchanges = async (topCryptos) => {
     const exchangeData = [];
@@ -94,11 +95,7 @@ const App = () => {
     // make new API call to get more data
     if (topX !== topCryptoTickers.length) {
       setLoadedList(defaultLoadedList);
-
-      await getCoinmarketcapData(topX).then((res) => {
-        getDataFromExchanges(res);
-        setTopCryptoTickers(res);
-      });
+      getData();
     } else {
       // if not, just re-sort
       sortAndCalculate(rawData);
@@ -122,7 +119,7 @@ const App = () => {
           </h1>
           <Slider
             defaultValue={topX}
-            onChange={(event, newValue) => {
+            onChangeCommitted={(event, newValue) => {
               setTopX(newValue);
             }}
             getAriaValueText={(value) => `${value}`}
@@ -140,7 +137,7 @@ const App = () => {
           <Slider
             width="50%"
             defaultValue={minGain}
-            onChange={(event, newValue) => {
+            onChangeCommitted={(event, newValue) => {
               setMinGain(newValue);
               setGainTip(true);
             }}
@@ -157,7 +154,7 @@ const App = () => {
           <Slider
             width="50%"
             defaultValue={maxGain}
-            onChange={(event, newValue) => {
+            onChangeCommitted={(event, newValue) => {
               setMaxGain(newValue);
               setGainTip(true);
             }}
@@ -187,7 +184,7 @@ const App = () => {
           </div>
         </Grow>
       ) : null}
-      <div className="mt-4 mb-8 text-center">
+      <div className="flex flex-row justify-evenly flex-wrap mt-4 mb-8 text-center">
         <Button variant="contained" color="primary" onClick={updateUI}>
           {gainTip ? "To the moon!" : "Update"}
         </Button>
@@ -200,6 +197,7 @@ const App = () => {
       </div>
       {loadedListLength < exchangeListLength ? (
         <>
+          {/* ---- Breakpoint > lg ---- */}
           <div className="hidden lg:block">
             <LoadingModal exchangeList={exchangeList} loadedList={loadedList} />
             <SkeletonRow />
@@ -207,7 +205,9 @@ const App = () => {
             <SkeletonRow />
             <SkeletonRow />
           </div>
+          {/* ---- Breakpoint < lg ---- */}
           <div className="w-full h-screen block lg:hidden">
+            <LoadingModal exchangeList={exchangeList} loadedList={loadedList} />
             <Skeleton className="mx-12 my-8" variant="rect" height={400} />
             <Skeleton className="mx-12 my-8" variant="rect" height={400} />
           </div>
