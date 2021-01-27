@@ -84,6 +84,7 @@ const App = () => {
       minGain,
       maxGain
     );
+    console.log(result)
     // final render pair that gets mapped over and displayed
     setArbitragePairs(result);
   };
@@ -223,7 +224,7 @@ const App = () => {
           <>
             <ArbitrageCoinRow
               loaded={loadedListLength === exchangeListLength}
-              firstLetter={pair.name[0]}
+              id={pair.id}
               name={pair.name}
               lowPrice={pair.lowPrice.toFixed(8)}
               buyExchange={pair.buyExchange}

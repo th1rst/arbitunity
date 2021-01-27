@@ -22,9 +22,13 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
       if (lastThreeChars === "BTC") {
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
-            relevantBinanceCoins.push({ name: name, price: price });
+            relevantBinanceCoins.push({
+              name: name,
+              price: price,
+              id: topCrypto.id,
+            });
           }
         });
       }
@@ -45,9 +49,13 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
         const price = coin.lastTradeRate;
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
-            relevantBittrexCoins.push({ name: name, price: price });
+            relevantBittrexCoins.push({
+              name: name,
+              price: price,
+              id: topCrypto.id, // ID is getting used to fetch the image from CMC
+            });
           }
         });
       }
@@ -76,11 +84,12 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
       else if (lastThreeChars === "BTC") {
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
             relevantBitfinexCoins.push({
               name: name,
               price: price,
+              id: topCrypto.id,
             });
           }
         });
@@ -104,9 +113,13 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
 
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
-            relevantCoinexCoins.push({ name: name, price: price });
+            relevantCoinexCoins.push({
+              name: name,
+              price: price,
+              id: topCrypto.id,
+            });
           }
         });
       }
@@ -132,9 +145,13 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
 
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
-            relevantGateIOcoins.push({ name: name, price: price });
+            relevantGateIOcoins.push({
+              name: name,
+              price: price,
+              id: topCrypto.id,
+            });
           }
         });
       }
@@ -158,9 +175,13 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
         const medianPrice = ((coin.bid + coin.ask) / 2).toFixed(8);
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
-            relevantHuobiCoins.push({ name: name, price: medianPrice });
+            relevantHuobiCoins.push({
+              name: name,
+              price: medianPrice,
+              id: topCrypto.id,
+            });
           }
         });
       }
@@ -183,9 +204,13 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
 
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
-            relevantPoloniexCoins.push({ name: name, price: price });
+            relevantPoloniexCoins.push({
+              name: name,
+              price: price,
+              id: topCrypto.id,
+            });
           }
         });
       }
@@ -211,9 +236,13 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
 
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
-            relevantOkexCoins.push({ name: name, price: price });
+            relevantOkexCoins.push({
+              name: name,
+              price: price,
+              id: topCrypto.id,
+            });
           }
         });
       }
@@ -234,9 +263,13 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
         const price = coin.averagePrice;
         //check if it's in the topX (default: top500)
         topCryptoTickers.forEach((topCrypto) => {
-          if (name === topCrypto) {
+          if (name === topCrypto.symbol) {
             //if it's in topX, push to array
-            relevantKucoinCoins.push({ name: name, price: price });
+            relevantKucoinCoins.push({
+              name: name,
+              price: price,
+              id: topCrypto.id,
+            });
           }
         });
       }
@@ -275,6 +308,6 @@ export const formatExchangeData = (APIdata, topCryptoTickers, exchangeName) => {
     default:
       break;
   }
- 
+
   return formatted;
 };

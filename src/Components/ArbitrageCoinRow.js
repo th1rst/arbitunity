@@ -5,26 +5,27 @@ import { getExchangeURL } from "../functions/API Calls/getExchangeURL";
 export const ArbitrageCoinRow = (props) => {
   const {
     loaded,
-    firstLetter,
     name,
     lowPrice,
     buyExchange,
     percentageGain,
     highPrice,
     sellExchange,
+    id,
   } = props;
 
   return (
     <div className="w-full my-8 flex flex-row justify-evenly items-center">
       {/* ---------- BUY CARD ---------- */}
+
       <Slide direction="right" in={loaded} mountOnEnter unmountOnExit>
         <div className="w-1/5 px-8 py-4 border-2 border-gray-300 rounded-xl bg-green-400 shadow-xl">
           <div className="flex flex-row items-center justify-between mb-4">
-            <div className="w-14 h-14 rounded-full bg-green-800 flex flex-col items-center justify-center">
-              <span className="text-white text-4xl font-bold">
-                {firstLetter}
-              </span>
-            </div>
+            <img
+              className="w-20 h-20 rounded-full"
+              src={`https://s2.coinmarketcap.com/static/img/coins/128x128/${id}.png`}
+              alt="coin logo"
+            />
             <p className="text-4xl mb-2 font-bold text-green-800">{name}</p>
           </div>
 
@@ -59,11 +60,11 @@ export const ArbitrageCoinRow = (props) => {
       <Slide direction="left" in={loaded} mountOnEnter unmountOnExit>
         <div className="w-1/5 px-8 py-4 border-2 border-gray-300 rounded-xl bg-red-400 shadow-xl">
           <div className="flex flex-row items-center justify-between mb-4">
-            <div className="w-14 h-14 rounded-full bg-red-800 flex flex-col items-center justify-center">
-              <span className="text-white text-4xl font-bold">
-                {firstLetter}
-              </span>
-            </div>
+            <img
+              className="w-20 h-20 rounded-full"
+              src={`https://s2.coinmarketcap.com/static/img/coins/128x128/${id}.png`}
+              alt="coin logo"
+            />
             <p className="text-4xl mb-2 font-bold text-red-800">{name}</p>
           </div>
           <div className="flex flex-row justify-between">

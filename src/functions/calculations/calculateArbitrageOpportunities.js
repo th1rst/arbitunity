@@ -21,6 +21,7 @@ export const calculateArbitrageOpportunities = (data, minGain, maxGain) => {
     // create temporary final object that needs to pass filter function below
     const tempCoin = {
       name: coin.name,
+      id: coin.id,
       lowPrice: lowest.price,
       highPrice: highest.price,
       percentageGain: calculatePercentageGain(lowest.price, highest.price),
