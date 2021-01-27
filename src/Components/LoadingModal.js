@@ -23,7 +23,7 @@ export const LoadingModal = (props) => {
         style={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
       >
         <div className="w-full h-full flex flex-row items-center justify-center">
-          <div className="w-1/2 flex flex-col items-center border-2 border-gray-400 rounded-lg shadow-xl bg-white">
+          <div className="w-full mx-4 lg:w-1/2 flex flex-col items-center border-2 border-gray-400 rounded-lg shadow-xl bg-white">
             <div className="flex flex-row justify-center items-center">
               <DnsIcon className="mx-4 text-green-500" />
               <h1 className="py-4 text-2xl text-center font-semibold">

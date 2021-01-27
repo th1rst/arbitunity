@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Slider from "@material-ui/core/Slider";
 import Button from "@material-ui/core/Button";
 import Grow from "@material-ui/core/Grow";
+import Skeleton from "@material-ui/lab/Skeleton";
 
 // functions
 import { getCoinmarketcapData } from "./functions/API Calls/getCoinmarketcapData";
@@ -192,25 +193,32 @@ const App = () => {
         </Button>
       </div>
 
-      <div className="hidden md:w-full md:my-4 md:text-2xl md:font-bold md:flex md:flex-row md:justify-evenly md:border-b md:text-white">
+      <div className="hidden lg:flex w-full my-4 text-2xl font-bold flex-row justify-evenly border-b text-white">
         <p className="mb-2">Buy:</p>
         <p className="mb-2">Percentage gain:</p>
         <p className="mb-2">Sell:</p>
       </div>
       {loadedListLength < exchangeListLength ? (
         <>
-          <LoadingModal exchangeList={exchangeList} loadedList={loadedList} />
-          <SkeletonRow />
-          <SkeletonRow />
-          <SkeletonRow />
-          <SkeletonRow />
+          <div className="hidden lg:block">
+            <LoadingModal exchangeList={exchangeList} loadedList={loadedList} />
+            <SkeletonRow />
+            <SkeletonRow />
+            <SkeletonRow />
+            <SkeletonRow />
+          </div>
+          <div className="w-full h-screen block lg:hidden">
+            <Skeleton className="mx-12 my-8" variant="rect" height={400} />
+            <Skeleton className="mx-12 my-8" variant="rect" height={400} />
+          </div>
         </>
       ) : (
-        arbitragePairs.map((pair) => (
+        arbitragePairs.map((pair, index) => (
           <>
             <ArbitrageCoinRow
               loaded={loadedListLength === exchangeListLength}
               id={pair.id}
+              index={index}
               name={pair.name}
               lowPrice={pair.lowPrice.toFixed(8)}
               buyExchange={pair.buyExchange}

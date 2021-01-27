@@ -8,6 +8,17 @@ import Typography from "@material-ui/core/Typography";
 import { getExchangeURL } from "../functions/API Calls/getExchangeURL";
 
 export const ArbitrageCoinRow = (props) => {
+  // let cards slide in from left and right depending on
+  // even/odd numbers (only on breakpoint < lg)
+  const checkEvenOddsForAnimation = (index) => {
+    // since original data comes from an array, exclude 0 (so index+1)
+    if ((index + 1) % 2 === 0) {
+      return "right";
+    } else {
+      return "left";
+    }
+  };
+
   const {
     loaded,
     name,
@@ -17,6 +28,7 @@ export const ArbitrageCoinRow = (props) => {
     highPrice,
     sellExchange,
     id,
+    index,
   } = props;
 
   return (
@@ -128,7 +140,13 @@ export const ArbitrageCoinRow = (props) => {
       {/* ----- Breakpoint < lg ----- */}
       <div className="flex lg:hidden flex-row justify-evenly items-center w-full my-8 ">
         {/* ---------- BUY CARD ---------- */}
-        <Slide direction="right" in={loaded} mountOnEnter unmountOnExit>
+
+        <Slide
+          direction={checkEvenOddsForAnimation(index)}
+          in={loaded}
+          mountOnEnter
+          unmountOnExit
+        >
           <Card className="w-3/4 border border-green-500">
             <div className="flex flex-row justify-between items-center">
               <img
