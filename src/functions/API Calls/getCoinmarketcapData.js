@@ -3,20 +3,12 @@ import { formatCoinmarketcapData } from "./Formatting/formatCoinmarketcapData";
 
 //get the Top X (default: 500) cryptos from CoinMarketCap
 export const getCoinmarketcapData = async (topX) => {
-  const CMC_API_KEY = process.env.REACT_APP_CMC_API_KEY;
-  const queryString = `?start=1&limit=${topX}`;
-  
+  const VPS_IP = process.env.REACT_APP_VPS_IP;
+
   try {
-    
-    let res = await axios.get(
-      "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest" +
-        queryString,
-      {
-        headers: {
-          "X-CMC_PRO_API_KEY": `${CMC_API_KEY}`,
-        },
-      }
-    );
+    let res = await axios.get(`http://${VPS_IP}/cmc`, {
+      headers: { amount: topX },
+    });
     return formatCoinmarketcapData(res.data);
   } catch (error) {
     console.log(error);

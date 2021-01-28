@@ -122,7 +122,7 @@ export const ArbitrageCoinRow = (props) => {
                 </Typography>
               </div>
             </CardContent>
-            <CardActions>
+            <CardActions className="border-t">
               <Button size="medium" color="primary">
                 <a
                   className="mt-2 text-center"

@@ -1,6 +1,7 @@
 {
   "name": "arbitunity",
   "version": "0.1.0",
+  "homepage": "https://kochannek.com/portfolio/arbitunity",
   "private": true,
   "dependencies": {
     "@craco/craco": "^6.0.0",

@@ -13,7 +13,7 @@ import { checkForLiquidity } from "./functions/calculations/checkForLiquidity";
 import { getUniqueCoinsAndPrices } from "./functions/calculations/getUniqueCoinsAndPrices";
 import { calculateArbitrageOpportunities } from "./functions/calculations/calculateArbitrageOpportunities";
 
-// components
+// Components
 import { LoadingModal } from "./Components/LoadingModal";
 import { ArbitrageCoinRow } from "./Components/ArbitrageCoinRow";
 import { SkeletonRow } from "./Components/SkeletonRow";
@@ -35,8 +35,8 @@ const App = () => {
   const loadedListLength = Object.entries(loadedList).length;
 
   useEffect(() => {
-    // first, get Top X (default: top500) Cryptos from CoinmarketCap,
-    // then, pass on the topX to Exchange API calls so the results
+    // First, get Top X (default: top500) Cryptos from CoinmarketCap.
+    // Then, pass on the topX to Exchange API calls so the results
     // get cross-checked against the topX and sorted accordingly.
     getData();
   }, []);
@@ -51,7 +51,7 @@ const App = () => {
   const getDataFromExchanges = async (topCryptos) => {
     const exchangeData = [];
 
-    // make API call for each exchange
+    // Make API call for each exchange
     // incl. formatting and filtering
     // on "getExchangeData" (separate helperFunctions)
     const promiseListData = exchangeList.map(async (exchange) => {
@@ -108,7 +108,7 @@ const App = () => {
         <h1 className="text-4xl font-semibold uppercase">
           Ar<span className="text-5xl text-yellow-500">₿</span>itunity
         </h1>
-        <h2 className="font-semibold">a Crptocurrency arbitrage calculator</h2>
+        <h2 className="font-semibold">a Crptocurrency Arbitrage Calculator</h2>
       </div>
 
       <div className="w-full mt-8 flex flex-row justify-content text-white">
@@ -194,6 +194,11 @@ const App = () => {
         <p className="mb-2">Buy:</p>
         <p className="mb-2">Percentage gain:</p>
         <p className="mb-2">Sell:</p>
+      </div>
+      <div className="font-semibold text-white text-center">
+        All prices are in Satoshis, all Trading Pairs are BTC Trading Pairs.
+        <br />
+        Always check the Volume before doing any trades.
       </div>
       {loadedListLength < exchangeListLength ? (
         <>
