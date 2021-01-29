@@ -2,7 +2,6 @@ import axios from "axios";
 import { formatExchangeData } from "./Formatting/formatExchangeData";
 
 export const getExchangeData = async (exchangeName, topCryptoTickers) => {
-  const VPS_IP = process.env.REACT_APP_VPS_IP;
   const time = new Date();
 
   let responseTime;
@@ -10,7 +9,9 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
 
   try {
     // gets EVERY trading pair and its price from Binance
-    let res = await axios.get(`http://${VPS_IP}/${exchangeName}`);
+    let res = await axios.get(
+      `https://arbitunity-proxy.kochannek.com/${exchangeName}`
+    );
 
     // calculate response time for displaying
     responseTime = new Date() - time;
