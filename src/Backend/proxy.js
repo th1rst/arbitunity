@@ -24,15 +24,20 @@ const credentials = {
   ca: ca,
 };
 
+const corsOptions = {
+  origin: "https://kochannek.com",
+  optionsSuccessStatus: 200,
+};
+
 require("dotenv").config();
 
 const app = express();
 const httpsServer = https.createServer(credentials, app);
 
 app.use(morgan("tiny"));
-app.use(cors());
+app.use(cors(corsOptions));
 
-app.get("/cmc", cors(), (req, res) => {
+app.get("/cmc", (req, res) => {
   const amount = req.headers.amount;
   const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=${amount}`;
 
@@ -48,7 +53,7 @@ app.get("/cmc", cors(), (req, res) => {
     });
 });
 
-app.get("/Bittrex", cors(), (req, res) => {
+app.get("/Bittrex", (req, res) => {
   axios
     .get("https://api.bittrex.com/v3/markets/tickers")
     .then((response) => {
@@ -60,7 +65,7 @@ app.get("/Bittrex", cors(), (req, res) => {
     });
 });
 
-app.get("/Binance", cors(), (req, res) => {
+app.get("/Binance", (req, res) => {
   axios
     .get("https://www.binance.com/api/v3/ticker/price")
     .then((response) => {
@@ -72,7 +77,7 @@ app.get("/Binance", cors(), (req, res) => {
     });
 });
 
-app.get("/Bitfinex", cors(), (req, res) => {
+app.get("/Bitfinex", (req, res) => {
   axios
     .get("https://api-pub.bitfinex.com/v2/tickers?symbols=ALL")
     .then((response) => {
@@ -84,7 +89,7 @@ app.get("/Bitfinex", cors(), (req, res) => {
     });
 });
 
-app.get("/Kucoin", cors(), (req, res) => {
+app.get("/Kucoin", (req, res) => {
   axios
     .get("https://api.kucoin.com/api/v1/market/allTickers")
     .then((response) => {
@@ -96,7 +101,7 @@ app.get("/Kucoin", cors(), (req, res) => {
     });
 });
 
-app.get("/Poloniex", cors(), (req, res) => {
+app.get("/Poloniex", (req, res) => {
   axios
     .get("https://poloniex.com/public?command=returnTicker")
     .then((response) => {
@@ -108,7 +113,7 @@ app.get("/Poloniex", cors(), (req, res) => {
     });
 });
 
-app.get("/Huobi", cors(), (req, res) => {
+app.get("/Huobi", (req, res) => {
   axios
     .get("https://api.huobi.pro/market/tickers")
     .then((response) => {
@@ -120,7 +125,7 @@ app.get("/Huobi", cors(), (req, res) => {
     });
 });
 
-app.get("/GateIO", cors(), (req, res) => {
+app.get("/GateIO", (req, res) => {
   axios
     .get("https://api.gateio.ws/api/v4/spot/tickers")
     .then((response) => {
@@ -132,7 +137,7 @@ app.get("/GateIO", cors(), (req, res) => {
     });
 });
 
-app.get("/OKex", cors(), (req, res) => {
+app.get("/OKex", (req, res) => {
   axios
     .get("https://www.okex.com/api/spot/v3/instruments/ticker")
     .then((response) => {
@@ -144,7 +149,7 @@ app.get("/OKex", cors(), (req, res) => {
     });
 });
 
-app.get("/CoinEx", cors(), (req, res) => {
+app.get("/CoinEx", (req, res) => {
   axios
     .get("https://api.coinex.com/v1/market/ticker/all")
     .then((response) => {

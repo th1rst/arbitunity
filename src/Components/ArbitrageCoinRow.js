@@ -139,8 +139,6 @@ export const ArbitrageCoinRow = (props) => {
 
       {/* ----- Breakpoint < lg ----- */}
       <div className="flex lg:hidden flex-row justify-evenly items-center w-full my-8 ">
-        {/* ---------- BUY CARD ---------- */}
-
         <Slide
           direction={checkEvenOddsForAnimation(index)}
           in={loaded}
