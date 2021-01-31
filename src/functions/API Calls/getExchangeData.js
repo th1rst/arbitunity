@@ -8,7 +8,7 @@ export const getExchangeData = async (exchangeName, topCryptoTickers) => {
   let formatted;
 
   try {
-    // gets EVERY trading pair and its price from Binance
+    // gets EVERY trading pair and its price from ${exchangeName}
     let res = await axios.get(
       `https://arbitunity-proxy.kochannek.com/${exchangeName}`
     );

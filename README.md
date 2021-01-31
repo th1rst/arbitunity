@@ -9,6 +9,20 @@
 
 [Live Version](https://kochannek.com/portfolio/arbitunity)
 
+### Functionality
+
+**What it does:**
+- Get Top 500 (default, can be edited) Coins from Coinmarketcap
+- Await promise.all(Get ALL trading pairs from 9 Exchanges)
+- Format them so only the BTC trading pairs that are liquid (not a price of 0) are left
+- Cross-check the ones that are left against the Top 500 coins
+- Return a new Object with (minPrice) at (buyExchange) and (maxPrice) at (sellExchange)
+- Calculate the possible percentage gain and render onto UI
+
+**What it does NOT:**
+- Differentiate between bid/ask prizes (not enough of a difference to be considered imho)
+- Check the trading volume of coins (this would result in too many API calls for the free tier)
+
 ### About 
 Originally, this wasn’t intended to be a (sort of) Full Stack and more of a fun project because I love Crypto ever since I got into it in early 2017.
 
