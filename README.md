@@ -21,7 +21,7 @@
 
 **What it does NOT:**
 - Differentiate between bid/ask prizes (not enough of a difference to be considered imho)
-- Check the trading volume of coins (this would result in too many API calls for the free tier)
+- Check the trading volume of coins (this would result in too many API calls for the 'free' tier)
 
 ### About 
 Originally, this wasn’t intended to be a (sort of) Full Stack and more of a fun project because I love Crypto ever since I got into it in early 2017.
@@ -53,10 +53,8 @@ Note: the Proxy Server is running on a cheap 1-Core Linux VPS located in St. Pet
 
 
 ## Features
-
-- Hooks
 - Material UI
-- Filtering hundreds of Cryptos across 9 Exchanges
+- Filtering thousands of Crypto Trading Pairs across 9 Exchanges
 - HTTPS enabled Proxy Server on a VPS
 - Visual representation of API response times
 - Adjust min+max gain to personal needs
